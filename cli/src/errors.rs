@@ -63,5 +63,7 @@ pub(crate) enum DistinstError {
 }
 
 impl From<DiskError> for DistinstError {
-    fn from(why: DiskError) -> DistinstError { DistinstError::Disk { why } }
+    fn from(why: DiskError) -> DistinstError {
+        DistinstError::Disk { why }
+    }
 }

@@ -1,8 +1,8 @@
 //! Retain users when reinstalling, keeping their home folder and user account.
 
 use crate::bootloader::Bootloader;
-use disk_types::FileSystem;
 use crate::disks::Disks;
+use disk_types::FileSystem;
 
 use super::{mount_and_then, AccountFiles, ReinstallError, UserData};
 
@@ -146,10 +146,10 @@ fn read_and_exclude<F: FnMut(&Path) -> Result<(), ReinstallError>>(
 }
 
 pub struct Backup<'a> {
-    pub users:     Vec<UserData<'a>>,
+    pub users: Vec<UserData<'a>>,
     pub localtime: Option<PathBuf>,
-    pub timezone:  Option<Vec<u8>>,
-    pub networks:  Option<Vec<(OsString, Vec<u8>)>>,
+    pub timezone: Option<Vec<u8>>,
+    pub networks: Option<Vec<(OsString, Vec<u8>)>>,
 }
 
 impl<'a> Backup<'a> {

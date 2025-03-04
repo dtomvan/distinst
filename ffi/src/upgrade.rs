@@ -5,13 +5,13 @@ use std::ptr;
 
 #[repr(C)]
 pub struct DistinstUpgradeEvent {
-    tag:          DISTINST_UPGRADE_TAG,
-    percent:      u8,
-    str1:         *const u8,
+    tag: DISTINST_UPGRADE_TAG,
+    percent: u8,
+    str1: *const u8,
     str1_length1: libc::size_t,
-    str2:         *const u8,
+    str2: *const u8,
     str2_length1: libc::size_t,
-    str3:         *const u8,
+    str3: *const u8,
     str3_length1: libc::size_t,
 }
 
@@ -34,13 +34,13 @@ pub enum DISTINST_UPGRADE_TAG {
 impl From<UpgradeEvent<'_>> for DistinstUpgradeEvent {
     fn from(event: UpgradeEvent) -> Self {
         let mut c_event = DistinstUpgradeEvent {
-            tag:          DISTINST_UPGRADE_TAG::ATTEMPTING_REPAIR,
-            percent:      0,
-            str1:         ptr::null(),
+            tag: DISTINST_UPGRADE_TAG::ATTEMPTING_REPAIR,
+            percent: 0,
+            str1: ptr::null(),
             str1_length1: 0,
-            str2:         ptr::null(),
+            str2: ptr::null(),
             str2_length1: 0,
-            str3:         ptr::null(),
+            str3: ptr::null(),
             str3_length1: 0,
         };
 
@@ -113,8 +113,7 @@ impl From<UpgradeEvent<'_>> for DistinstUpgradeEvent {
 pub type DistinstUpgradeEventCallback =
     extern "C" fn(event: DistinstUpgradeEvent, user_data: *mut c_void);
 
-pub type DistinstUpgradeRepairCallback =
-    extern "C" fn(user_data: *mut c_void) -> u8;
+pub type DistinstUpgradeRepairCallback = extern "C" fn(user_data: *mut c_void) -> u8;
 
 #[no_mangle]
 pub unsafe extern "C" fn distinst_upgrade(
@@ -137,9 +136,7 @@ pub unsafe extern "C" fn distinst_upgrade(
         &mut env,
         &mut *(disks as *mut Disks),
         &*(option as *const RecoveryOption),
-        move |event| {
-            event_cb(DistinstUpgradeEvent::from(event), user_data1)
-        },
+        move |event| event_cb(DistinstUpgradeEvent::from(event), user_data1),
         move || repair_cb(user_data2) != 0,
     );
 

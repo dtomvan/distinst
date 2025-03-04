@@ -1,5 +1,5 @@
-use distinst::timezones::*;
 use crate::gen_object_ptr;
+use distinst::timezones::*;
 use libc;
 use std::ptr;
 

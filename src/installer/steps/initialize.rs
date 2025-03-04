@@ -1,11 +1,11 @@
 use crate::disks::*;
 use crate::misc;
+use crate::Config;
 use rayon;
 use std::{
     io::{self, BufRead},
     path::{Path, PathBuf},
 };
-use crate::Config;
 
 pub fn initialize<F: FnMut(i32)>(
     disks: &mut Disks,

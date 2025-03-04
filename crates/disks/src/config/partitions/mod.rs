@@ -5,8 +5,8 @@ use super::{
     super::{LvmEncryption, PartitionError},
     PVS,
 };
-pub use disk_types::{BlockDeviceExt, FileSystem, PartitionExt, PartitionType, SectorExt};
 use crate::external::{get_label, is_encrypted};
+pub use disk_types::{BlockDeviceExt, FileSystem, PartitionExt, PartitionType, SectorExt};
 use fstab_generate::BlockInfo;
 use libparted::{Partition, PartitionFlag};
 pub use os_detect::OS;
@@ -24,7 +24,9 @@ pub fn get_preferred_options(fs: FileSystem) -> &'static str {
         FileSystem::Fat16 | FileSystem::Fat32 => "umask=0077",
         FileSystem::Ext4 => "noatime,errors=remount-ro",
         FileSystem::Swap => "sw",
-        FileSystem::F2fs => "defaults,compress_algorithm=lz4,compress_chksum,atgc,gc_merge,lazytime,nodiscard",
+        FileSystem::F2fs => {
+            "defaults,compress_algorithm=lz4,compress_chksum,atgc,gc_merge,lazytime,nodiscard"
+        }
         _ => "defaults",
     }
 }
@@ -45,12 +47,12 @@ pub const SWAPPED: u8 = 0b10_0000;
 /// Contains relevant information about a certain partition.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PartitionInfo {
-    pub bitflags:     u8,
+    pub bitflags: u8,
     /// The partition number is the numeric value that follows the disk's device path.
     /// IE: _/dev/sda1_
-    pub number:       i32,
+    pub number: i32,
     /// The physical order of the partition on the disk, as partition numbers may not be in order.
-    pub ordering:     i32,
+    pub ordering: i32,
     /// The initial sector where the partition currently, or will, reside.
     pub start_sector: u64,
     /// The final sector where the partition currently, or will, reside.
@@ -58,52 +60,68 @@ pub struct PartitionInfo {
     /// The length of the partion can be calculated by substracting the `end_sector`
     /// from the `start_sector`, and multiplying that by the value of the disk's
     /// sector size.
-    pub end_sector:   u64,
+    pub end_sector: u64,
     /// Whether this partition is a primary or logical partition.
-    pub part_type:    PartitionType,
+    pub part_type: PartitionType,
     /// Whether there is a file system currently, or will be, on this partition.
-    pub filesystem:   Option<FileSystem>,
+    pub filesystem: Option<FileSystem>,
     /// Specifies optional flags that should be applied to the partition, if
     /// not already set.
-    pub flags:        Vec<PartitionFlag>,
+    pub flags: Vec<PartitionFlag>,
     /// Specifies the name of the partition.
-    pub name:         Option<String>,
+    pub name: Option<String>,
     /// Contains the device path of the partition, which is the disk's device path plus
     /// the partition number.
-    pub device_path:  PathBuf,
+    pub device_path: PathBuf,
     /// Where this partition is mounted in the file system, if at all.
-    pub mount_point:  Option<PathBuf>,
+    pub mount_point: Option<PathBuf>,
     /// Where this partition will be mounted in the future
-    pub target:       Option<PathBuf>,
+    pub target: Option<PathBuf>,
     /// The pre-existing volume group assigned to this partition.
-    pub original_vg:  Option<String>,
+    pub original_vg: Option<String>,
     /// The volume group & LUKS configuration to associate with this device.
     // TODO: Separate the tuple?
     pub volume_group: Option<(String, Option<LvmEncryption>)>,
     /// If the partition is associated with a keyfile, this will name the key.
-    pub key_id:       Option<String>,
+    pub key_id: Option<String>,
     /// Possible identifiers for this partition.
-    pub identifiers:  PartitionIdentifiers,
+    pub identifiers: PartitionIdentifiers,
 }
 
 impl BlockDeviceExt for PartitionInfo {
-    fn get_device_path(&self) -> &Path { &self.device_path }
+    fn get_device_path(&self) -> &Path {
+        &self.device_path
+    }
 
-    fn get_mount_point(&self) -> Option<&Path> { self.mount_point.as_deref() }
+    fn get_mount_point(&self) -> Option<&Path> {
+        self.mount_point.as_deref()
+    }
 }
 
 impl PartitionExt for PartitionInfo {
-    fn get_file_system(&self) -> Option<FileSystem> { self.filesystem }
+    fn get_file_system(&self) -> Option<FileSystem> {
+        self.filesystem
+    }
 
-    fn get_partition_flags(&self) -> &[PartitionFlag] { &self.flags }
+    fn get_partition_flags(&self) -> &[PartitionFlag] {
+        &self.flags
+    }
 
-    fn get_partition_label(&self) -> Option<&str> { self.name.as_deref() }
+    fn get_partition_label(&self) -> Option<&str> {
+        self.name.as_deref()
+    }
 
-    fn get_partition_type(&self) -> PartitionType { self.part_type }
+    fn get_partition_type(&self) -> PartitionType {
+        self.part_type
+    }
 
-    fn get_sector_end(&self) -> u64 { self.end_sector }
+    fn get_sector_end(&self) -> u64 {
+        self.end_sector
+    }
 
-    fn get_sector_start(&self) -> u64 { self.start_sector }
+    fn get_sector_start(&self) -> u64 {
+        self.start_sector
+    }
 }
 
 impl SectorExt for PartitionInfo {
@@ -184,9 +202,13 @@ impl PartitionInfo {
         Ok(())
     }
 
-    pub fn flag_is_enabled(&self, flag: u8) -> bool { self.bitflags & flag != 0 }
+    pub fn flag_is_enabled(&self, flag: u8) -> bool {
+        self.bitflags & flag != 0
+    }
 
-    pub fn flag_disable(&mut self, flag: u8) { self.bitflags &= 255 ^ flag; }
+    pub fn flag_disable(&mut self, flag: u8) {
+        self.bitflags &= 255 ^ flag;
+    }
 
     /// Assigns the partition to a keyfile ID.
     pub fn associate_keyfile(&mut self, id: String) {
@@ -195,7 +217,9 @@ impl PartitionInfo {
     }
 
     // True if the partition contains an encrypted partition
-    pub fn is_encrypted(&self) -> bool { is_encrypted(self.get_device_path()) }
+    pub fn is_encrypted(&self) -> bool {
+        is_encrypted(self.get_device_path())
+    }
 
     pub fn get_current_lvm_volume_group(&self) -> Option<&str> {
         self.original_vg.as_deref()
@@ -215,7 +239,9 @@ impl PartitionInfo {
     }
 
     /// Defines a mount target for this partition.
-    pub fn set_mount(&mut self, target: PathBuf) { self.target = Some(target); }
+    pub fn set_mount(&mut self, target: PathBuf) {
+        self.target = Some(target);
+    }
 
     /// Defines that the partition belongs to a given volume group.
     ///
@@ -257,10 +283,14 @@ impl PartitionInfo {
     }
 
     /// Returns true if this partition will be formatted.
-    pub fn will_format(&self) -> bool { self.bitflags & FORMAT != 0 }
+    pub fn will_format(&self) -> bool {
+        self.bitflags & FORMAT != 0
+    }
 
     /// Specifies to delete this partition from the partition table.
-    pub fn remove(&mut self) { self.bitflags |= REMOVE; }
+    pub fn remove(&mut self) {
+        self.bitflags |= REMOVE;
+    }
 
     /// Obtains bock information for the partition, if possible, for use with
     /// generating entries in "/etc/fstab".
@@ -315,69 +345,69 @@ mod tests {
 
     fn efi_partition() -> PartitionInfo {
         PartitionInfo {
-            bitflags:     ACTIVE | BUSY | SOURCE,
-            device_path:  Path::new("/dev/sdz1").to_path_buf(),
-            flags:        vec![PartitionFlag::PED_PARTITION_ESP],
-            mount_point:  Some(Path::new("/boot/efi").to_path_buf()),
-            target:       Some(Path::new("/boot/efi").to_path_buf()),
+            bitflags: ACTIVE | BUSY | SOURCE,
+            device_path: Path::new("/dev/sdz1").to_path_buf(),
+            flags: vec![PartitionFlag::PED_PARTITION_ESP],
+            mount_point: Some(Path::new("/boot/efi").to_path_buf()),
+            target: Some(Path::new("/boot/efi").to_path_buf()),
             start_sector: 2048,
-            end_sector:   1026047,
-            filesystem:   Some(FileSystem::Fat16),
-            name:         None,
-            number:       1,
-            ordering:     1,
-            part_type:    PartitionType::Primary,
-            key_id:       None,
-            original_vg:  None,
+            end_sector: 1026047,
+            filesystem: Some(FileSystem::Fat16),
+            name: None,
+            number: 1,
+            ordering: 1,
+            part_type: PartitionType::Primary,
+            key_id: None,
+            original_vg: None,
             volume_group: None,
-            identifiers:  PartitionIdentifiers::default(),
+            identifiers: PartitionIdentifiers::default(),
         }
     }
 
     fn root_partition() -> PartitionInfo {
         PartitionInfo {
-            bitflags:     ACTIVE | BUSY | SOURCE,
-            device_path:  Path::new("/dev/sdz2").to_path_buf(),
-            flags:        vec![],
-            mount_point:  Some(Path::new("/").to_path_buf()),
-            target:       Some(Path::new("/").to_path_buf()),
+            bitflags: ACTIVE | BUSY | SOURCE,
+            device_path: Path::new("/dev/sdz2").to_path_buf(),
+            flags: vec![],
+            mount_point: Some(Path::new("/").to_path_buf()),
+            target: Some(Path::new("/").to_path_buf()),
             start_sector: 1026048,
-            end_sector:   420456447,
-            filesystem:   Some(FileSystem::Btrfs),
-            name:         Some("Pop!_OS".into()),
-            number:       2,
-            ordering:     2,
-            part_type:    PartitionType::Primary,
-            key_id:       None,
-            original_vg:  None,
+            end_sector: 420456447,
+            filesystem: Some(FileSystem::Btrfs),
+            name: Some("Pop!_OS".into()),
+            number: 2,
+            ordering: 2,
+            part_type: PartitionType::Primary,
+            key_id: None,
+            original_vg: None,
             volume_group: None,
-            identifiers:  PartitionIdentifiers::default(),
+            identifiers: PartitionIdentifiers::default(),
         }
     }
 
     fn luks_on_lvm_partition() -> PartitionInfo {
         PartitionInfo {
-            bitflags:     ACTIVE | SOURCE,
-            device_path:  Path::new("/dev/sdz3").to_path_buf(),
-            flags:        vec![],
-            mount_point:  None,
-            target:       None,
+            bitflags: ACTIVE | SOURCE,
+            device_path: Path::new("/dev/sdz3").to_path_buf(),
+            flags: vec![],
+            mount_point: None,
+            target: None,
             start_sector: 420456448,
-            end_sector:   1936738303,
-            filesystem:   Some(FileSystem::Luks),
-            name:         None,
-            number:       4,
-            ordering:     4,
-            part_type:    PartitionType::Primary,
-            key_id:       None,
-            original_vg:  None,
-            identifiers:  PartitionIdentifiers::default(),
+            end_sector: 1936738303,
+            filesystem: Some(FileSystem::Luks),
+            name: None,
+            number: 4,
+            ordering: 4,
+            part_type: PartitionType::Primary,
+            key_id: None,
+            original_vg: None,
+            identifiers: PartitionIdentifiers::default(),
             volume_group: Some((
                 "LVM_GROUP".into(),
                 Some(LvmEncryption {
                     physical_volume: "LUKS_PV".into(),
-                    password:        Some("password".into()),
-                    keydata:         None,
+                    password: Some("password".into()),
+                    keydata: None,
                 }),
             )),
         }
@@ -385,43 +415,43 @@ mod tests {
 
     fn lvm_partition() -> PartitionInfo {
         PartitionInfo {
-            bitflags:     ACTIVE | SOURCE,
-            device_path:  Path::new("/dev/sdz3").to_path_buf(),
-            flags:        vec![],
-            mount_point:  None,
-            target:       None,
+            bitflags: ACTIVE | SOURCE,
+            device_path: Path::new("/dev/sdz3").to_path_buf(),
+            flags: vec![],
+            mount_point: None,
+            target: None,
             start_sector: 420456448,
-            end_sector:   1936738303,
-            filesystem:   Some(FileSystem::Lvm),
-            name:         None,
-            number:       4,
-            ordering:     4,
-            part_type:    PartitionType::Primary,
-            key_id:       None,
-            original_vg:  None,
+            end_sector: 1936738303,
+            filesystem: Some(FileSystem::Lvm),
+            name: None,
+            number: 4,
+            ordering: 4,
+            part_type: PartitionType::Primary,
+            key_id: None,
+            original_vg: None,
             volume_group: Some(("LVM_GROUP".into(), None)),
-            identifiers:  PartitionIdentifiers::default(),
+            identifiers: PartitionIdentifiers::default(),
         }
     }
 
     fn swap_partition() -> PartitionInfo {
         PartitionInfo {
-            bitflags:     ACTIVE | SOURCE,
-            device_path:  Path::new("/dev/sdz4").to_path_buf(),
-            flags:        vec![],
-            mount_point:  None,
-            target:       None,
+            bitflags: ACTIVE | SOURCE,
+            device_path: Path::new("/dev/sdz4").to_path_buf(),
+            flags: vec![],
+            mount_point: None,
+            target: None,
             start_sector: 1936738304,
-            end_sector:   1953523711,
-            filesystem:   Some(FileSystem::Swap),
-            name:         None,
-            number:       4,
-            ordering:     4,
-            part_type:    PartitionType::Primary,
-            key_id:       None,
-            original_vg:  None,
+            end_sector: 1953523711,
+            filesystem: Some(FileSystem::Swap),
+            name: None,
+            number: 4,
+            ordering: 4,
+            part_type: PartitionType::Primary,
+            key_id: None,
+            original_vg: None,
             volume_group: None,
-            identifiers:  PartitionIdentifiers::default(),
+            identifiers: PartitionIdentifiers::default(),
         }
     }
 

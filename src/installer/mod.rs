@@ -14,22 +14,22 @@ use crate::auto::{
     delete_old_install, move_root, recover_root, remove_root, validate_backup_conditions,
     AccountFiles, Backup, ReinstallError,
 };
-use disk_types::BlockDeviceExt;
 use crate::disks::{Bootloader, Disks};
 use crate::errors::IoContext;
 use crate::external::luks::deactivate_logical_devices;
 use crate::hostname;
+use crate::squashfs;
+use crate::timezones::Region;
+use crate::PARTITIONING_TEST;
+use disk_types::BlockDeviceExt;
 use os_release::OsRelease;
 use partition_identity::PartitionID;
-use crate::squashfs;
 use std::{
     io,
     path::{Path, PathBuf},
     sync::atomic::Ordering,
 };
 use tempdir::TempDir;
-use crate::timezones::Region;
-use crate::PARTITIONING_TEST;
 
 pub const MODIFY_BOOT_ORDER: u8 = 0b01;
 pub const INSTALL_HARDWARE_SUPPORT: u8 = 0b10;
@@ -49,23 +49,23 @@ macro_rules! percent {
 /// Installer configuration
 pub struct Config {
     /// Hostname to assign to the installed system.
-    pub hostname:         String,
+    pub hostname: String,
     /// The keyboard layout to use with the installed system (such as "us").
-    pub keyboard_layout:  String,
+    pub keyboard_layout: String,
     /// An optional keyboard model (such as "pc105") to define the keyboard's model.
-    pub keyboard_model:   Option<String>,
+    pub keyboard_model: Option<String>,
     /// An optional variant of the keyboard (such as "dvorak").
     pub keyboard_variant: Option<String>,
     /// The UUID of the old root partition, for retaining user accounts.
-    pub old_root:         Option<String>,
+    pub old_root: Option<String>,
     /// The locale to use for the installed system.
-    pub lang:             String,
+    pub lang: String,
     /// The file that contains a list of packages to remove.
-    pub remove:           String,
+    pub remove: String,
     /// The archive (`tar` or `squashfs`) which contains the base system.
-    pub squashfs:         String,
+    pub squashfs: String,
     /// Some flags to control the behavior of the installation.
-    pub flags:            u8,
+    pub flags: u8,
 }
 
 /// Credentials for creating a new user account.
@@ -81,21 +81,21 @@ pub struct UserAccountCreate {
 #[derive(Debug)]
 pub struct Error {
     pub step: Step,
-    pub err:  io::Error,
+    pub err: io::Error,
 }
 
 /// Installer status
 #[derive(Copy, Clone, Debug)]
 pub struct Status {
-    pub step:    Step,
+    pub step: Step,
     pub percent: i32,
 }
 
 /// An installer object
 pub struct Installer {
-    error_cb:         Option<Box<dyn FnMut(&Error)>>,
-    status_cb:        Option<Box<dyn FnMut(&Status)>>,
-    timezone_cb:      Option<Box<dyn FnMut() -> Region>>,
+    error_cb: Option<Box<dyn FnMut(&Error)>>,
+    status_cb: Option<Box<dyn FnMut(&Status)>>,
+    timezone_cb: Option<Box<dyn FnMut() -> Region>>,
     user_creation_cb: Option<Box<dyn FnMut() -> UserAccountCreate>>,
 }
 
@@ -107,12 +107,7 @@ impl Default for Installer {
     /// let installer = Installer::new();
     /// ```
     fn default() -> Self {
-        Self {
-            error_cb:         None,
-            status_cb:        None,
-            timezone_cb:      None,
-            user_creation_cb: None,
-        }
+        Self { error_cb: None, status_cb: None, timezone_cb: None, user_creation_cb: None }
     }
 }
 

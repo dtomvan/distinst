@@ -1,11 +1,11 @@
-use apt_cli_wrappers::AptUpgradeEvent;
 use crate::auto::{InstallOption, InstallOptionError, RecoveryOption};
 use crate::chroot::SystemdNspawn;
-use err_derive::Error;
 use crate::disks::Disks;
 use crate::errors::IoContext;
 use crate::external::remount_rw;
 use crate::installer::{steps::mount_efivars, RecoveryEnv};
+use apt_cli_wrappers::AptUpgradeEvent;
+use err_derive::Error;
 use std::{io, path::Path, process::Stdio};
 use systemd_boot_conf::SystemdBootConf;
 use tempdir::TempDir;
@@ -155,7 +155,7 @@ fn apt_upgrade<F: Fn(UpgradeEvent)>(chroot: &mut SystemdNspawn, callback: &F) ->
                         UpgradeEvent::PackageUnpacking {
                             package: package.as_ref(),
                             version: version.as_ref(),
-                            over:    over.as_ref(),
+                            over: over.as_ref(),
                         }
                     }
                     _ => UpgradeEvent::UpgradeInfo(info),
@@ -193,7 +193,7 @@ fn dpkg_configure_all<F: Fn(UpgradeEvent)>(
                         UpgradeEvent::PackageUnpacking {
                             package: package.as_ref(),
                             version: version.as_ref(),
-                            over:    over.as_ref(),
+                            over: over.as_ref(),
                         }
                     }
                     _ => UpgradeEvent::UpgradeInfo(info),

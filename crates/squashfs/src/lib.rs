@@ -46,8 +46,8 @@ fn getpty(columns: u32, lines: u32) -> (RawFd, String) {
 
     unsafe {
         let size = libc::winsize {
-            ws_row:    lines as libc::c_ushort,
-            ws_col:    columns as libc::c_ushort,
+            ws_row: lines as libc::c_ushort,
+            ws_col: columns as libc::c_ushort,
             ws_xpixel: 0,
             ws_ypixel: 0,
         };

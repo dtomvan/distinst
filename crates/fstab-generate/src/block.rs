@@ -1,28 +1,22 @@
-
+use disk_types::FileSystem;
 use partition_identity::{PartitionID, PartitionSource};
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
-use disk_types::FileSystem;
 
 /// Information that will be used to generate a fstab entry for the given
 /// partition.
 #[derive(Debug, PartialEq)]
 pub struct BlockInfo<'a> {
-    pub uid:     PartitionID,
-    mount:       Option<PathBuf>,
-    pub fs:      &'static str,
+    pub uid: PartitionID,
+    mount: Option<PathBuf>,
+    pub fs: &'static str,
     pub options: &'a str,
-    pub dump:    bool,
-    pub pass:    bool,
+    pub dump: bool,
+    pub pass: bool,
 }
 
 impl<'a> BlockInfo<'a> {
-    pub fn new(
-        uid: PartitionID,
-        fs: FileSystem,
-        target: Option<&Path>,
-        options: &'a str,
-    ) -> Self {
+    pub fn new(uid: PartitionID, fs: FileSystem, target: Option<&Path>, options: &'a str) -> Self {
         let pass = target == Some(Path::new("/"));
         BlockInfo {
             uid,
@@ -70,9 +64,7 @@ impl<'a> BlockInfo<'a> {
 
     /// Retrieve the mount point, which is `none` if non-existent.
     pub fn mount(&self) -> &OsStr {
-        self.mount
-            .as_ref()
-            .map_or(OsStr::new("none"), |path| path.as_os_str())
+        self.mount.as_ref().map_or(OsStr::new("none"), |path| path.as_os_str())
     }
 
     /// Helper for fetching the Partition ID of a partition.
@@ -98,7 +90,8 @@ mod tests {
         let swap_id = PartitionID { id: "SWAP".into(), variant: PartitionSource::UUID };
         let swap = BlockInfo::new(swap_id, FileSystem::Swap, None, "sw");
         let efi_id = PartitionID { id: "EFI".into(), variant: PartitionSource::PartUUID };
-        let efi = BlockInfo::new(efi_id, FileSystem::Fat32, Some(Path::new("/boot/efi")), "defaults");
+        let efi =
+            BlockInfo::new(efi_id, FileSystem::Fat32, Some(Path::new("/boot/efi")), "defaults");
         let root_id = PartitionID { id: "ROOT".into(), variant: PartitionSource::UUID };
         let root = BlockInfo::new(root_id, FileSystem::Ext4, Some(Path::new("/")), "defaults");
 
@@ -109,27 +102,23 @@ mod tests {
 
         assert_eq!(
             *fstab,
-            OsString::from(r#"UUID=SWAP  none  swap  sw  0  0
+            OsString::from(
+                r#"UUID=SWAP  none  swap  sw  0  0
 PARTUUID=EFI  /boot/efi  vfat  defaults  0  0
 UUID=ROOT  /  ext4  defaults  0  1
-"#)
+"#
+            )
         );
     }
 
     #[test]
     fn block_info_swap() {
-        let id = PartitionID {
-            variant: PartitionSource::UUID,
-            id: "TEST".to_owned()
-        };
+        let id = PartitionID { variant: PartitionSource::UUID, id: "TEST".to_owned() };
         let swap = BlockInfo::new(id, FileSystem::Swap, None, "sw");
         assert_eq!(
             swap,
             BlockInfo {
-                uid: PartitionID {
-                    variant: PartitionSource::UUID,
-                    id: "TEST".to_owned()
-                },
+                uid: PartitionID { variant: PartitionSource::UUID, id: "TEST".to_owned() },
                 mount: None,
                 fs: "swap",
                 options: "sw",
@@ -142,18 +131,12 @@ UUID=ROOT  /  ext4  defaults  0  1
 
     #[test]
     fn block_info_efi() {
-        let id = PartitionID {
-            variant: PartitionSource::PartUUID,
-            id: "TEST".to_owned()
-        };
+        let id = PartitionID { variant: PartitionSource::PartUUID, id: "TEST".to_owned() };
         let efi = BlockInfo::new(id, FileSystem::Fat32, Some(Path::new("/boot/efi")), "defaults");
         assert_eq!(
             efi,
             BlockInfo {
-                uid: PartitionID {
-                    variant: PartitionSource::PartUUID,
-                    id: "TEST".to_owned()
-                },
+                uid: PartitionID { variant: PartitionSource::PartUUID, id: "TEST".to_owned() },
                 mount: Some(PathBuf::from("/boot/efi")),
                 fs: "vfat",
                 options: "defaults",
@@ -166,18 +149,12 @@ UUID=ROOT  /  ext4  defaults  0  1
 
     #[test]
     fn block_info_root() {
-        let id = PartitionID {
-            variant: PartitionSource::UUID,
-            id: "TEST".to_owned()
-        };
+        let id = PartitionID { variant: PartitionSource::UUID, id: "TEST".to_owned() };
         let root = BlockInfo::new(id, FileSystem::Ext4, Some(Path::new("/")), "defaults");
         assert_eq!(
             root,
             BlockInfo {
-                uid: PartitionID {
-                    variant: PartitionSource::UUID,
-                    id: "TEST".to_owned()
-                },
+                uid: PartitionID { variant: PartitionSource::UUID, id: "TEST".to_owned() },
                 mount: Some(PathBuf::from("/")),
                 fs: FileSystem::Ext4.into(),
                 options: "defaults",

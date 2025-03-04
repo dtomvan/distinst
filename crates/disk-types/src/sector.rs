@@ -1,4 +1,4 @@
-use crate::device::{BlockDeviceExt};
+use crate::device::BlockDeviceExt;
 use std::str::{self, FromStr};
 use sysfs_class::{Block, SysClass};
 
@@ -18,13 +18,14 @@ pub trait SectorExt: BlockDeviceExt {
 
         let block = match Block::from_path(&self.sys_block_path()) {
             Ok(block) => block,
-            _ => return 512
+            _ => return 512,
         };
 
         match block.queue_logical_block_size() {
             Ok(size) => return size,
             Err(_) => {
-                return self.get_parent_device()
+                return self
+                    .get_parent_device()
                     .expect("partition lacks parent block device")
                     .queue_logical_block_size()
                     .expect("parent of partition lacks logical block size");
@@ -89,7 +90,9 @@ pub enum Sector {
 }
 
 impl From<u64> for Sector {
-    fn from(sectors: u64) -> Sector { Sector::Unit(sectors) }
+    fn from(sectors: u64) -> Sector {
+        Sector::Unit(sectors)
+    }
 }
 
 impl FromStr for Sector {
@@ -129,18 +132,26 @@ impl FromStr for Sector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::u16;
     use std::path::Path;
+    use std::u16;
 
     struct FictionalBlock(u64);
 
     impl SectorExt for FictionalBlock {}
 
     impl BlockDeviceExt for FictionalBlock {
-        fn get_device_name(&self) -> &str { "fictional" }
-        fn get_device_path(&self) -> &Path { Path::new("/dev/fictional")  }
-        fn get_sectors(&self) -> u64 { self.0 }
-        fn get_logical_block_size(&self) -> u64 { 512 }
+        fn get_device_name(&self) -> &str {
+            "fictional"
+        }
+        fn get_device_path(&self) -> &Path {
+            Path::new("/dev/fictional")
+        }
+        fn get_sectors(&self) -> u64 {
+            self.0
+        }
+        fn get_logical_block_size(&self) -> u64 {
+            512
+        }
     }
 
     #[test]

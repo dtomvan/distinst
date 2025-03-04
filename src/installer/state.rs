@@ -1,11 +1,11 @@
 use super::{Error, Installer, Status, Step};
+use crate::KILL_SWITCH;
 use libc;
 use std::{io, sync::atomic::Ordering};
-use crate::KILL_SWITCH;
 
 pub struct InstallerState<'a> {
     pub installer: &'a mut Installer,
-    pub status:    Status,
+    pub status: Status,
 }
 
 impl<'a> InstallerState<'a> {
@@ -42,7 +42,11 @@ impl<'a> InstallerState<'a> {
         }
     }
 
-    pub fn emit_status(&mut self, status: Status) { self.installer.emit_status(status); }
+    pub fn emit_status(&mut self, status: Status) {
+        self.installer.emit_status(status);
+    }
 
-    pub fn emit_error(&mut self, error: &Error) { self.installer.emit_error(&error); }
+    pub fn emit_error(&mut self, error: &Error) {
+        self.installer.emit_error(&error);
+    }
 }

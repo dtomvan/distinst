@@ -31,7 +31,7 @@ const MEGABYTE: u64 = 1_000_000;
 #[derive(new)]
 pub struct BlockCoordinates {
     pub start: u64,
-    pub end:   u64,
+    pub end: u64,
 }
 
 impl BlockCoordinates {
@@ -51,7 +51,7 @@ impl BlockCoordinates {
 /// Defines how many sectors to skip, and how the partition is.
 #[derive(Clone, Copy)]
 pub struct OffsetCoordinates {
-    pub skip:   u64,
+    pub skip: u64,
     pub offset: i64,
     pub length: u64,
 }

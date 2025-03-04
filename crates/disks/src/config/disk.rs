@@ -6,8 +6,8 @@ use super::{
     partitions::{FORMAT, REMOVE, SOURCE, SWAPPED},
     PVS,
 };
-use disk_types::{PartitionExt, PartitionTableExt, SectorExt};
 use crate::external::{is_encrypted, pvs};
+use disk_types::{PartitionExt, PartitionTableExt, SectorExt};
 use libparted::{Device, DeviceType, Disk as PedDisk};
 use operations::{
     parted::{get_device, open_disk},
@@ -91,9 +91,9 @@ pub fn detect_fs_on_device(path: &Path) -> Option<PartitionInfo> {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Disk {
     /// The model name of the device, assigned by the manufacturer.
-    pub model_name:  String,
+    pub model_name: String,
     /// A unique identifier to this disk.
-    pub serial:      String,
+    pub serial: String,
     /// The location in the file system where the block device is located.
     pub device_path: PathBuf,
     /// Account for the possibility that the entire disk is a file system.
@@ -101,26 +101,32 @@ pub struct Disk {
     /// Where the device is mounted, if mounted at all.
     pub mount_point: Option<PathBuf>,
     /// The size of the disk in sectors.
-    pub size:        u64,
+    pub size: u64,
     /// The type of the device, such as SCSI.
     pub device_type: String,
     /// The partition table may be either **MSDOS** or **GPT**.
-    pub table_type:  Option<PartitionTable>,
+    pub table_type: Option<PartitionTable>,
     /// Whether the device is currently in a read-only state.
-    pub read_only:   bool,
+    pub read_only: bool,
     /// Defines whether the device should be wiped or not. The `table_type`
     /// field will be used to determine which table to write to the disk.
-    pub mklabel:     bool,
+    pub mklabel: bool,
     /// The partitions that are stored on the device.
-    pub partitions:  Vec<PartitionInfo>,
+    pub partitions: Vec<PartitionInfo>,
 }
 
 impl BlockDeviceExt for Disk {
-    fn get_device_path(&self) -> &Path { &self.device_path }
+    fn get_device_path(&self) -> &Path {
+        &self.device_path
+    }
 
-    fn get_mount_point(&self) -> Option<&Path> { self.mount_point.as_deref() }
+    fn get_mount_point(&self) -> Option<&Path> {
+        self.mount_point.as_deref()
+    }
 
-    fn is_read_only(&self) -> bool { self.read_only }
+    fn is_read_only(&self) -> bool {
+        self.read_only
+    }
 }
 
 impl SectorExt for Disk {
@@ -130,7 +136,9 @@ impl SectorExt for Disk {
 }
 
 impl PartitionTableExt for Disk {
-    fn get_partition_table(&self) -> Option<PartitionTable> { self.table_type }
+    fn get_partition_table(&self) -> Option<PartitionTable> {
+        self.table_type
+    }
 
     fn get_partition_type_count(&self) -> (usize, usize, bool) {
         self.partitions.iter().fold((0, 0, false), |sum, part| match part.get_partition_type() {
@@ -144,19 +152,33 @@ impl PartitionTableExt for Disk {
 impl DiskExt for Disk {
     const LOGICAL: bool = false;
 
-    fn get_file_system(&self) -> Option<&PartitionInfo> { self.file_system.as_ref() }
+    fn get_file_system(&self) -> Option<&PartitionInfo> {
+        self.file_system.as_ref()
+    }
 
-    fn get_file_system_mut(&mut self) -> Option<&mut PartitionInfo> { self.file_system.as_mut() }
+    fn get_file_system_mut(&mut self) -> Option<&mut PartitionInfo> {
+        self.file_system.as_mut()
+    }
 
-    fn set_file_system(&mut self, fs: PartitionInfo) { self.file_system = Some(fs) }
+    fn set_file_system(&mut self, fs: PartitionInfo) {
+        self.file_system = Some(fs)
+    }
 
-    fn get_model(&self) -> &str { &self.model_name }
+    fn get_model(&self) -> &str {
+        &self.model_name
+    }
 
-    fn get_partitions_mut(&mut self) -> &mut [PartitionInfo] { &mut self.partitions }
+    fn get_partitions_mut(&mut self) -> &mut [PartitionInfo] {
+        &mut self.partitions
+    }
 
-    fn get_partitions(&self) -> &[PartitionInfo] { &self.partitions }
+    fn get_partitions(&self) -> &[PartitionInfo] {
+        &self.partitions
+    }
 
-    fn push_partition(&mut self, partition: PartitionInfo) { self.partitions.push(partition); }
+    fn push_partition(&mut self, partition: PartitionInfo) {
+        self.partitions.push(partition);
+    }
 }
 
 impl Disk {
@@ -262,7 +284,9 @@ impl Disk {
     }
 
     /// Returns the serial of the device, filled in by the manufacturer.
-    pub fn get_serial(&self) -> &str { &self.serial }
+    pub fn get_serial(&self) -> &str {
+        &self.serial
+    }
 
     pub fn is_being_modified(&self) -> bool {
         self.partitions.iter().any(|x| {
@@ -385,7 +409,9 @@ impl Disk {
     }
 
     /// Returns the device type information as a string.
-    pub fn get_device_type(&self) -> &str { &self.device_type }
+    pub fn get_device_type(&self) -> &str {
+        &self.device_type
+    }
 
     pub fn get_esp_partitions_mut(&mut self) -> Vec<&mut PartitionInfo> {
         self.partitions.iter_mut().filter(|p| p.is_esp_partition()).collect()
@@ -712,32 +738,32 @@ impl Disk {
                                 if new.flag_is_enabled(FORMAT) {
                                     remove_partitions.push(source.start_sector);
                                     create_partitions.push(PartitionCreate {
-                                        path:         self.device_path.clone(),
+                                        path: self.device_path.clone(),
                                         start_sector: new.start_sector,
-                                        end_sector:   new.end_sector,
-                                        format:       true,
-                                        file_system:  Some(new.filesystem.expect(
+                                        end_sector: new.end_sector,
+                                        format: true,
+                                        file_system: Some(new.filesystem.expect(
                                             "no file system in partition that requires changes",
                                         )),
-                                        kind:         new.part_type,
-                                        flags:        new.flags.clone(),
-                                        label:        new.name.clone(),
+                                        kind: new.part_type,
+                                        flags: new.flags.clone(),
+                                        label: new.name.clone(),
                                     });
                                 } else {
                                     change_partitions.push(PartitionChange {
                                         device_path: device_path.clone(),
-                                        path:        new.device_path.clone(),
-                                        num:         source.number,
-                                        kind:        new.part_type,
-                                        start:       new.start_sector,
-                                        end:         new.end_sector,
-                                        filesystem:  source.filesystem,
-                                        flags:       flags_diff(
+                                        path: new.device_path.clone(),
+                                        num: source.number,
+                                        kind: new.part_type,
+                                        start: new.start_sector,
+                                        end: new.end_sector,
+                                        filesystem: source.filesystem,
+                                        flags: flags_diff(
                                             &source.flags,
                                             new.flags.clone().into_iter(),
                                         ),
-                                        new_flags:   new.flags.clone(),
-                                        label:       new.name.clone(),
+                                        new_flags: new.flags.clone(),
+                                        label: new.name.clone(),
                                     });
                                 }
                             }
@@ -761,14 +787,14 @@ impl Disk {
             }
 
             create_partitions.push(PartitionCreate {
-                path:         self.device_path.clone(),
+                path: self.device_path.clone(),
                 start_sector: partition.start_sector,
-                end_sector:   partition.end_sector,
-                format:       true,
-                file_system:  partition.filesystem,
-                kind:         partition.part_type,
-                flags:        partition.flags.clone(),
-                label:        partition.name.clone(),
+                end_sector: partition.end_sector,
+                format: true,
+                file_system: partition.filesystem,
+                kind: partition.part_type,
+                flags: partition.flags.clone(),
+                label: partition.name.clone(),
             });
         }
 
@@ -842,5 +868,7 @@ impl Disk {
         Ok(())
     }
 
-    pub fn path(&self) -> &Path { &self.device_path }
+    pub fn path(&self) -> &Path {
+        &self.device_path
+    }
 }

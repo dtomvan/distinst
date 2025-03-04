@@ -1,6 +1,6 @@
-use std::{io, fs, fmt::Debug};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
+use std::{fmt::Debug, fs, io};
 use sysfs_class::{Block, SysClass};
 
 /// Methods that all block devices share, whether they are partitions or disks.
@@ -48,7 +48,9 @@ pub trait BlockDeviceExt {
     fn get_device_path(&self) -> &Path;
 
     /// The mount point of this block device, if it is mounted.
-    fn get_mount_point(&self) -> Option<&Path> { None }
+    fn get_mount_point(&self) -> Option<&Path> {
+        None
+    }
 
     /// The name of the device, such as `sda1`.
     fn get_device_name(&self) -> String {
@@ -71,7 +73,8 @@ pub trait BlockDeviceExt {
             .canonicalize()
             .ok()
             .and_then(|canon| {
-                canon.parent()
+                canon
+                    .parent()
                     .and_then(|parent| parent.file_name())
                     .and_then(|name| name.to_str())
                     .map(|parent| Path::new("/sys/class/block").join(parent))

@@ -1,6 +1,8 @@
 use crate::chroot::Chroot;
 use crate::disks::{Bootloader, Disks};
 use crate::errors::IoContext;
+use crate::Config;
+use crate::MODIFY_BOOT_ORDER;
 use libc;
 use os_release::OsRelease;
 use std::{
@@ -10,8 +12,6 @@ use std::{
     os::unix::ffi::{OsStrExt, OsStringExt},
     path::{Path, PathBuf},
 };
-use crate::Config;
-use crate::MODIFY_BOOT_ORDER;
 
 use super::mount_efivars;
 
@@ -64,10 +64,15 @@ pub fn bootloader<F: FnMut(i32)>(
                 Bootloader::Bios => {
                     let grub_target = match env::consts::ARCH {
                         "x86_64" => "i386-pc",
-                        unknown => return Err(io::Error::new(
-                            io::ErrorKind::Other,
-                            format!("unsupported architecture {} for bootloader {:?}", unknown, bootloader)
-                        )),
+                        unknown => {
+                            return Err(io::Error::new(
+                                io::ErrorKind::Other,
+                                format!(
+                                    "unsupported architecture {} for bootloader {:?}",
+                                    unknown, bootloader
+                                ),
+                            ))
+                        }
                     };
 
                     chroot
@@ -107,10 +112,15 @@ pub fn bootloader<F: FnMut(i32)>(
                         let grub_target = match env::consts::ARCH {
                             "aarch64" => "arm64-efi",
                             "x86_64" => "x86_64-efi",
-                            unknown => return Err(io::Error::new(
-                                io::ErrorKind::Other,
-                                format!("unsupported architecture {} for bootloader {:?}", unknown, bootloader)
-                            )),
+                            unknown => {
+                                return Err(io::Error::new(
+                                    io::ErrorKind::Other,
+                                    format!(
+                                        "unsupported architecture {} for bootloader {:?}",
+                                        unknown, bootloader
+                                    ),
+                                ))
+                            }
                         };
 
                         chroot
@@ -153,10 +163,12 @@ pub fn bootloader<F: FnMut(i32)>(
                         let efi_arch = match env::consts::ARCH {
                             "aarch64" => "aa64",
                             "x86_64" => "x64",
-                            unknown => return Err(io::Error::new(
-                                io::ErrorKind::Other,
-                                format!("unsupported architecture {} for EFI", unknown)
-                            )),
+                            unknown => {
+                                return Err(io::Error::new(
+                                    io::ErrorKind::Other,
+                                    format!("unsupported architecture {} for EFI", unknown),
+                                ))
+                            }
                         };
                         let loader = if &name == "Pop!_OS" {
                             format!("\\EFI\\systemd\\systemd-boot{}.efi", efi_arch)

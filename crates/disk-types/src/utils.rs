@@ -1,7 +1,7 @@
 use std::fmt::Debug;
-use std::str::FromStr;
 use std::path::Path;
-use std::{io, fs};
+use std::str::FromStr;
+use std::{fs, io};
 
 pub fn read_file<T: FromStr>(path: &Path) -> io::Result<T>
 where

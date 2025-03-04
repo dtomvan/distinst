@@ -379,15 +379,15 @@ fn main() {
         installer.install(
             disks,
             &Config {
-                flags:            install_flags(&matches),
-                hostname:         hostname.into(),
-                keyboard_layout:  keyboard.next().map(String::from).unwrap(),
-                keyboard_model:   take_optional_string(keyboard.next()),
+                flags: install_flags(&matches),
+                hostname: hostname.into(),
+                keyboard_layout: keyboard.next().map(String::from).unwrap(),
+                keyboard_model: take_optional_string(keyboard.next()),
                 keyboard_variant: take_optional_string(keyboard.next()),
-                old_root:         None,
-                lang:             lang.into(),
-                remove:           remove.into(),
-                squashfs:         squashfs.into(),
+                old_root: None,
+                lang: lang.into(),
+                remove: remove.into(),
+                squashfs: squashfs.into(),
             },
         )
     };

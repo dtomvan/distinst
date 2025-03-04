@@ -50,10 +50,10 @@ extern crate systemd_boot_conf;
 extern crate tempdir;
 
 pub use crate::bootloader::*;
-pub use disk_types::*;
 pub use crate::disks::*;
 pub use crate::misc::device_layout_hash;
 pub use crate::upgrade::*;
+pub use disk_types::*;
 
 pub use self::installer::RecoveryEnv;
 
@@ -76,8 +76,8 @@ use std::{
     sync::atomic::AtomicBool,
 };
 
-use anyhow::Context;
 use crate::external::dmlist;
+use anyhow::Context;
 use partition_identity::PartitionID;
 use sys_mount::*;
 use systemd_boot_conf::SystemdBootConf;
@@ -178,7 +178,9 @@ fn mount_efi(efi_id: &str, target_dir: &Path) -> anyhow::Result<UnmountDrop<Moun
             .context("failed to create target directory for EFI mount")?;
     }
 
-    Mount::builder().fstype("vfat").mount(&efi_path, target_dir)
+    Mount::builder()
+        .fstype("vfat")
+        .mount(&efi_path, target_dir)
         .context("failed to mount EFI partition")
         .map(|mount| mount.into_unmount_drop(UnmountFlags::DETACH))
 }

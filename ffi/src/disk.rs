@@ -227,9 +227,7 @@ pub unsafe extern "C" fn distinst_disk_get_sectors(disk: *const DistinstDisk) ->
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn distinst_disk_get_sector_size(
-    disk: *const DistinstDisk,
-) -> u64 {
+pub unsafe extern "C" fn distinst_disk_get_sector_size(disk: *const DistinstDisk) -> u64 {
     if null_check(disk).is_err() {
         return 0;
     }

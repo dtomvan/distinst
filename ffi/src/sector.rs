@@ -1,13 +1,13 @@
-use distinst::Sector;
 use crate::get_str;
+use crate::to_cstr;
+use distinst::Sector;
 use libc;
 use std::ptr;
-use crate::to_cstr;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct DistinstSector {
-    flag:  DISTINST_SECTOR_KIND,
+    flag: DISTINST_SECTOR_KIND,
     value: u64,
 }
 
@@ -54,8 +54,8 @@ impl From<Sector> for DistinstSector {
 
 #[repr(C)]
 pub struct DistinstSectorResult {
-    tag:    u8,
-    error:  *mut libc::c_char,
+    tag: u8,
+    error: *mut libc::c_char,
     sector: DistinstSector,
 }
 
@@ -68,8 +68,8 @@ pub unsafe extern "C" fn distinst_sector_from_str(
         Ok(string) => string,
         Err(why) => {
             return DistinstSectorResult {
-                tag:    1,
-                error:  to_cstr(format!("{}", why)),
+                tag: 1,
+                error: to_cstr(format!("{}", why)),
                 sector: distinst_sector_start(),
             };
         }
@@ -78,13 +78,13 @@ pub unsafe extern "C" fn distinst_sector_from_str(
     // Then attempt to get the corresponding sector value
     match string.parse::<Sector>().ok() {
         Some(sector) => DistinstSectorResult {
-            tag:    0,
-            error:  ptr::null_mut(),
+            tag: 0,
+            error: ptr::null_mut(),
             sector: DistinstSector::from(sector),
         },
         None => DistinstSectorResult {
-            tag:    1,
-            error:  to_cstr("sector_from_str: invalid input".into()),
+            tag: 1,
+            error: to_cstr("sector_from_str: invalid input".into()),
             sector: distinst_sector_start(),
         },
     }

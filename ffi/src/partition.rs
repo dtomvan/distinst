@@ -2,15 +2,15 @@ use libc;
 
 use std::{ffi::CString, io, os::unix::ffi::OsStrExt, path::PathBuf, ptr};
 
-use distinst::{
-    BlockDeviceExt, Bootloader, FileSystem, LvmEncryption, PartitionBuilder, PartitionExt,
-    PartitionFlag, PartitionInfo, PartitionTable, PartitionType,
-};
 use crate::filesystem::DISTINST_FILE_SYSTEM;
 use crate::gen_object_ptr;
 use crate::get_str;
 use crate::null_check;
 use crate::DistinstLvmEncryption;
+use distinst::{
+    BlockDeviceExt, Bootloader, FileSystem, LvmEncryption, PartitionBuilder, PartitionExt,
+    PartitionFlag, PartitionInfo, PartitionTable, PartitionType,
+};
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -312,9 +312,7 @@ pub unsafe extern "C" fn distinst_partition_get_current_lvm_volume_group(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn distinst_partition_get_number(
-    partition: *const DistinstPartition,
-) -> i32 {
+pub unsafe extern "C" fn distinst_partition_get_number(partition: *const DistinstPartition) -> i32 {
     if null_check(partition).is_err() {
         return -1;
     }
@@ -574,7 +572,7 @@ pub unsafe extern "C" fn distinst_partition_and_disk_path_destroy(
 #[repr(C)]
 pub struct DistinstPartitionUsage {
     // 0 = None, 1 = Some(Ok(T)), 2 = Some(Err(T))
-    tag:   u8,
+    tag: u8,
     // Some(Ok(sectors)) | Some(Err(errno))
     value: u64,
 }

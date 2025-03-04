@@ -20,9 +20,9 @@ use std::path::PathBuf;
 #[derive(Debug)]
 pub struct InstallOptions {
     pub alongside_options: Vec<AlongsideOption>,
-    pub erase_options:     Vec<EraseOption>,
-    pub recovery_option:   Option<RecoveryOption>,
-    pub refresh_options:   Vec<RefreshOption>,
+    pub erase_options: Vec<EraseOption>,
+    pub recovery_option: Option<RecoveryOption>,
+    pub refresh_options: Vec<RefreshOption>,
 }
 
 impl InstallOptions {
@@ -68,13 +68,13 @@ impl InstallOptions {
                         );
 
                         refresh_options.push(RefreshOption {
-                            os_release:     info.clone(),
-                            root_part:      PartitionID::get_uuid(part.get_device_path())
+                            os_release: info.clone(),
+                            root_part: PartitionID::get_uuid(part.get_device_path())
                                 .expect("root device did not have uuid")
                                 .id,
-                            home_part:      home.map(|pos| partitions[pos].clone()),
-                            efi_part:       efi.map(|pos| partitions[pos].clone()),
-                            recovery_part:  recovery.map(|pos| partitions[pos].clone()),
+                            home_part: home.map(|pos| partitions[pos].clone()),
+                            efi_part: efi.map(|pos| partitions[pos].clone()),
+                            recovery_part: recovery.map(|pos| partitions[pos].clone()),
                             can_retain_old: if let Ok(used) = part.sectors_used() {
                                 part.get_sectors() - used > required_space
                             } else {
@@ -111,12 +111,12 @@ impl InstallOptions {
                                 sectors
                             );
                             alongside_options.push(AlongsideOption {
-                                device:    device.get_device_path().to_path_buf(),
+                                device: device.get_device_path().to_path_buf(),
                                 alongside: os,
-                                method:    AlongsideMethod::Shrink {
-                                    path:          part.get_device_path().to_path_buf(),
-                                    partition:     part.number,
-                                    sectors_free:  free,
+                                method: AlongsideMethod::Shrink {
+                                    path: part.get_device_path().to_path_buf(),
+                                    partition: part.number,
+                                    sectors_free: free,
                                     sectors_total: sectors,
                                 },
                             });
@@ -133,9 +133,9 @@ impl InstallOptions {
                             part.start_sector - 1
                         );
                         alongside_options.push(AlongsideOption {
-                            device:    device.get_device_path().to_path_buf(),
+                            device: device.get_device_path().to_path_buf(),
                             alongside: None,
-                            method:    AlongsideMethod::Free(Region::new(
+                            method: AlongsideMethod::Free(Region::new(
                                 last_end_sector + 1,
                                 part.start_sector - 1,
                             )),
@@ -154,9 +154,9 @@ impl InstallOptions {
                         last_sector
                     );
                     alongside_options.push(AlongsideOption {
-                        device:    device.get_device_path().to_path_buf(),
+                        device: device.get_device_path().to_path_buf(),
                         alongside: None,
-                        method:    AlongsideMethod::Free(Region::new(
+                        method: AlongsideMethod::Free(Region::new(
                             last_end_sector + 1,
                             last_sector,
                         )),
@@ -239,7 +239,9 @@ pub enum InstallOptionError {
 }
 
 impl From<DiskError> for InstallOptionError {
-    fn from(why: DiskError) -> InstallOptionError { InstallOptionError::DiskError { why } }
+    fn from(why: DiskError) -> InstallOptionError {
+        InstallOptionError::DiskError { why }
+    }
 }
 
 impl From<PartitionError> for InstallOptionError {

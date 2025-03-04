@@ -1,9 +1,9 @@
+use crate::ffi::AsMutPtr;
 use distinst::{
     BlockDeviceExt, DiskExt, Disks, LogicalDevice, PartitionBuilder, PartitionInfo, Sector,
     SectorExt,
 };
 use external::luks::deactivate_logical_devices;
-use crate::ffi::AsMutPtr;
 use libc;
 
 use super::{
@@ -144,9 +144,7 @@ pub unsafe extern "C" fn distinst_lvm_device_last_used_sector(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn distinst_lvm_device_get_sectors(
-    device: *const DistinstLvmDevice,
-) -> u64 {
+pub unsafe extern "C" fn distinst_lvm_device_get_sectors(device: *const DistinstLvmDevice) -> u64 {
     if null_check(device).is_err() {
         return 0;
     }
@@ -299,9 +297,9 @@ pub struct DistinstLvmEncryption {
     /// The PV field is not optional
     pub physical_volume: *mut libc::c_char,
     /// The password field is optional
-    pub password:        *mut libc::c_char,
+    pub password: *mut libc::c_char,
     /// The keydata field is optional
-    pub keydata:         *mut libc::c_char,
+    pub keydata: *mut libc::c_char,
 }
 
 #[no_mangle]

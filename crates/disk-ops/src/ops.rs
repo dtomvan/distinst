@@ -29,8 +29,8 @@ pub fn get_partition<'a>(disk: &'a mut PedDisk, part: u32) -> io::Result<PedPart
 /// partitions.
 #[derive(Debug, Clone, PartialEq)]
 pub struct DiskOps<'a> {
-    pub mklabel:           Option<PartitionTable>,
-    pub device_path:       &'a Path,
+    pub mklabel: Option<PartitionTable>,
+    pub device_path: &'a Path,
     pub remove_partitions: Vec<u64>,
     pub change_partitions: Vec<PartitionChange>,
     pub create_partitions: Vec<PartitionCreate>,
@@ -72,7 +72,7 @@ impl<'a> DiskOps<'a> {
 
         sync(&mut device)?;
         Ok(ChangePartitions {
-            device_path:       self.device_path,
+            device_path: self.device_path,
             change_partitions: self.change_partitions,
             create_partitions: self.create_partitions,
         })
@@ -82,7 +82,7 @@ impl<'a> DiskOps<'a> {
 /// The second state of disk operations, which provides a method for changing
 /// partitions.
 pub struct ChangePartitions<'a> {
-    device_path:       &'a Path,
+    device_path: &'a Path,
     change_partitions: Vec<PartitionChange>,
     create_partitions: Vec<PartitionCreate>,
 }
@@ -197,7 +197,7 @@ impl<'a> ChangePartitions<'a> {
 
         // Proceed to the next state in the machine.
         Ok(CreatePartitions {
-            device_path:       self.device_path,
+            device_path: self.device_path,
             create_partitions: self.create_partitions,
             format_partitions: Vec::new(),
         })
@@ -207,7 +207,7 @@ impl<'a> ChangePartitions<'a> {
 /// The partition creation stage of disk operations, which provides a method
 /// for creating new partitions.
 pub struct CreatePartitions<'a> {
-    device_path:       &'a Path,
+    device_path: &'a Path,
     create_partitions: Vec<PartitionCreate>,
     format_partitions: Vec<(PathBuf, FileSystem)>,
 }

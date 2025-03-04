@@ -521,10 +521,10 @@ pub enum DISTINST_INSTALL_OPTION_VARIANT {
 
 #[repr(C)]
 pub struct DistinstInstallOption {
-    tag:          DISTINST_INSTALL_OPTION_VARIANT,
-    option:       *const libc::c_void,
+    tag: DISTINST_INSTALL_OPTION_VARIANT,
+    option: *const libc::c_void,
     encrypt_pass: *const libc::c_char,
-    sectors:      u64,
+    sectors: u64,
 }
 
 impl<'a> From<&'a DistinstInstallOption> for InstallOption<'a> {
@@ -540,19 +540,19 @@ impl<'a> From<&'a DistinstInstallOption> for InstallOption<'a> {
         unsafe {
             match opt.tag {
                 DISTINST_INSTALL_OPTION_VARIANT::ALONGSIDE => InstallOption::Alongside {
-                    option:   &*(opt.option as *const AlongsideOption),
+                    option: &*(opt.option as *const AlongsideOption),
                     password: get_passwd(),
-                    sectors:  opt.sectors,
+                    sectors: opt.sectors,
                 },
                 DISTINST_INSTALL_OPTION_VARIANT::RECOVERY => InstallOption::Recovery {
-                    option:   &*(opt.option as *const RecoveryOption),
+                    option: &*(opt.option as *const RecoveryOption),
                     password: get_passwd(),
                 },
                 DISTINST_INSTALL_OPTION_VARIANT::REFRESH => {
                     InstallOption::Refresh(&*(opt.option as *const RefreshOption))
                 }
                 DISTINST_INSTALL_OPTION_VARIANT::ERASE => InstallOption::Erase {
-                    option:   &*(opt.option as *const EraseOption),
+                    option: &*(opt.option as *const EraseOption),
                     password: get_passwd(),
                 },
                 DISTINST_INSTALL_OPTION_VARIANT::UPGRADE => {
@@ -566,10 +566,10 @@ impl<'a> From<&'a DistinstInstallOption> for InstallOption<'a> {
 #[no_mangle]
 pub unsafe extern "C" fn distinst_install_option_new() -> *mut DistinstInstallOption {
     Box::into_raw(Box::new(DistinstInstallOption {
-        tag:          DISTINST_INSTALL_OPTION_VARIANT::ERASE,
-        option:       ptr::null(),
+        tag: DISTINST_INSTALL_OPTION_VARIANT::ERASE,
+        option: ptr::null(),
         encrypt_pass: ptr::null(),
-        sectors:      0,
+        sectors: 0,
     }))
 }
 

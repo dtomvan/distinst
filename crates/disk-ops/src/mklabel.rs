@@ -1,7 +1,7 @@
+use crate::parted::*;
 use disk_types::PartitionTable;
 use external::wipefs;
 use libparted::{Disk as PedDisk, DiskType as PedDiskType};
-use crate::parted::*;
 use std::{
     fs::File,
     io::{self, Seek, SeekFrom, Write},

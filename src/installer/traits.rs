@@ -1,11 +1,11 @@
 use self::FileSystem::*;
 use super::bitflags::FileSystemSupport;
-use disk_types::{BlockDeviceExt, FileSystem, PartitionExt};
-use crate::disks::{Disks};
+use crate::disks::Disks;
 use crate::errors::IntoIoResult;
 use crate::external::generate_unique_id;
-use fstab_generate::BlockInfo;
 use crate::misc::hasher;
+use disk_types::{BlockDeviceExt, FileSystem, PartitionExt};
+use fstab_generate::BlockInfo;
 use partition_identity::PartitionID;
 use std::{
     borrow::Cow,

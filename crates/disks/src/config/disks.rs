@@ -7,11 +7,11 @@ use super::{
     partitions::{FORMAT, REMOVE, SOURCE},
     Disk, LvmEncryption, PartitionTable, PVS,
 };
-use disk_types::{BlockDeviceExt, PartitionExt, PartitionTableExt, SectorExt};
 use crate::external::{
     cryptsetup_close, cryptsetup_open, lvs, physical_volumes_to_deactivate, pvs, vgdeactivate,
     CloseBy,
 };
+use disk_types::{BlockDeviceExt, PartitionExt, PartitionTableExt, SectorExt};
 use itertools::Itertools;
 use libparted::{Device, DeviceType};
 use misc;
@@ -34,26 +34,32 @@ use sys_mount::{swapoff, unmount, Mount, MountFlags, Mounts, Unmount, UnmountFla
 #[derive(Debug, Default, PartialEq)]
 pub struct Disks {
     pub physical: Vec<Disk>,
-    pub logical:  Vec<LogicalDevice>,
+    pub logical: Vec<LogicalDevice>,
 }
 
 impl Disks {
     /// Adds a disk to the disks configuration.
-    pub fn add(&mut self, disk: Disk) { self.physical.push(disk); }
+    pub fn add(&mut self, disk: Disk) {
+        self.physical.push(disk);
+    }
 
     /// Fill in any missing IDs.
     pub fn rescan_partition_ids(&mut self) {
         for part in self.get_partitions_mut() {
             if part.identifiers.path.is_none() {
-                part.identifiers.path = PartitionID::get_source(PartitionSource::Path, part.get_device_path()).map(|pid| pid.id);
+                part.identifiers.path =
+                    PartitionID::get_source(PartitionSource::Path, part.get_device_path())
+                        .map(|pid| pid.id);
             }
 
             if part.identifiers.uuid.is_none() {
-                part.identifiers.uuid = PartitionID::get_uuid(part.get_device_path()).map(|pid| pid.id);
+                part.identifiers.uuid =
+                    PartitionID::get_uuid(part.get_device_path()).map(|pid| pid.id);
             }
 
             if part.identifiers.part_uuid.is_none() {
-                part.identifiers.part_uuid = PartitionID::get_partuuid(part.get_device_path()).map(|pid| pid.id);
+                part.identifiers.part_uuid =
+                    PartitionID::get_partuuid(part.get_device_path()).map(|pid| pid.id);
             }
         }
     }
@@ -93,11 +99,15 @@ impl Disks {
     }
 
     /// Returns a slice of physical disks stored within the configuration.
-    pub fn get_physical_devices(&self) -> &[Disk] { &self.physical }
+    pub fn get_physical_devices(&self) -> &[Disk] {
+        &self.physical
+    }
 
     /// Returns a mutable slice of physical disks stored within the
     /// configuration.
-    pub fn get_physical_devices_mut(&mut self) -> &mut [Disk] { &mut self.physical }
+    pub fn get_physical_devices_mut(&mut self) -> &mut [Disk] {
+        &mut self.physical
+    }
 
     /// Returns the physical device that contains the partition at path.
     pub fn get_physical_device_with_partition<P: AsRef<Path>>(&self, path: P) -> Option<&Disk> {
@@ -121,7 +131,9 @@ impl Disks {
     }
 
     /// Uses a boxed iterator to get an iterator over all physical partitions.
-    pub fn get_physical_partitions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a PartitionInfo> + 'a> {
+    pub fn get_physical_partitions<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a PartitionInfo> + 'a> {
         let iterator = self.get_physical_devices().iter().flat_map(|disk| {
             let iterator: Box<dyn Iterator<Item = &PartitionInfo>> =
                 if let Some(ref fs) = disk.file_system {
@@ -154,21 +166,26 @@ impl Disks {
 
     /// Searches for a LVM device which is inside of the given LUKS physical volume name.
     pub fn get_logical_device_within_pv_mut(&mut self, pv: &str) -> Option<&mut LogicalDevice> {
-
         self.logical
             .iter_mut()
             .find(|d| d.encryption.as_ref().map_or(false, |enc| enc.physical_volume == pv))
     }
 
     /// Returns a slice of logical disks stored within the configuration.
-    pub fn get_logical_devices(&self) -> &[LogicalDevice] { &self.logical }
+    pub fn get_logical_devices(&self) -> &[LogicalDevice] {
+        &self.logical
+    }
 
     /// Returns a mutable slice of logical disks stored within the
     /// configuration.
-    pub fn get_logical_devices_mut(&mut self) -> &mut [LogicalDevice] { &mut self.logical }
+    pub fn get_logical_devices_mut(&mut self) -> &mut [LogicalDevice] {
+        &mut self.logical
+    }
 
     /// Uses a boxed iterator to get an iterator over all logical partitions.
-    pub fn get_logical_partitions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a PartitionInfo> + 'a> {
+    pub fn get_logical_partitions<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = &'a PartitionInfo> + 'a> {
         let iterator = self.get_logical_devices().iter().flat_map(|disk| {
             let iterator: Box<dyn Iterator<Item = &PartitionInfo>> =
                 if let Some(ref fs) = disk.file_system {
@@ -262,7 +279,10 @@ impl Disks {
                 }
                 MountKind::Bind { source } => {
                     info!("bind mounting {:?} to {:?}", source, target_mount);
-                    Mount::builder().flags(MountFlags::BIND).fstype("").mount(source, &target_mount)?
+                    Mount::builder()
+                        .flags(MountFlags::BIND)
+                        .fstype("")
+                        .mount(source, &target_mount)?
                 }
             };
 
@@ -591,7 +611,9 @@ impl Disks {
         for mut device in Device::devices(true) {
             if let Some(name) = device.path().file_name().and_then(|x| x.to_str()) {
                 // Ignore CDROM devices
-                if name.starts_with("sr") || name.starts_with("scd") { continue }
+                if name.starts_with("sr") || name.starts_with("scd") {
+                    continue;
+                }
 
                 info!("probed {:?}", device.path());
 
@@ -1197,7 +1219,9 @@ impl IntoIterator for Disks {
     type IntoIter = ::std::vec::IntoIter<Disk>;
     type Item = Disk;
 
-    fn into_iter(self) -> Self::IntoIter { self.physical.into_iter() }
+    fn into_iter(self) -> Self::IntoIter {
+        self.physical.into_iter()
+    }
 }
 
 impl FromIterator<Disk> for Disks {

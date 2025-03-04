@@ -58,15 +58,23 @@ mod tests {
     }
 
     impl BlockDeviceExt for FictionalBlock {
-        fn get_device_name(&self) -> &str { "fictional" }
+        fn get_device_name(&self) -> &str {
+            "fictional"
+        }
 
-        fn get_device_path(&self) -> &Path { Path::new("/dev/fictional")  }
+        fn get_device_path(&self) -> &Path {
+            Path::new("/dev/fictional")
+        }
 
-        fn get_mount_point(&self) -> Option<&Path> { None }
+        fn get_mount_point(&self) -> Option<&Path> {
+            None
+        }
     }
 
     impl PartitionTableExt for FictionalBlock {
-        fn get_partition_table(&self) -> Option<PartitionTable> { Some(PartitionTable::Msdos) }
+        fn get_partition_table(&self) -> Option<PartitionTable> {
+            Some(PartitionTable::Msdos)
+        }
 
         fn get_partition_type_count(&self) -> (usize, usize, bool) {
             self.partitions.iter().fold((0, 0, false), |sum, &part| match part {

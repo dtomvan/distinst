@@ -10,8 +10,8 @@ pub enum AlongsideMethod {
 #[derive(Debug)]
 pub struct AlongsideOption {
     pub alongside: Option<OS>,
-    pub device:    PathBuf,
-    pub method:    AlongsideMethod,
+    pub device: PathBuf,
+    pub method: AlongsideMethod,
 }
 
 impl AlongsideOption {
@@ -52,22 +52,24 @@ impl fmt::Display for AlongsideOption {
 }
 
 pub struct AlongsideData {
-    pub systems:           Vec<OS>,
+    pub systems: Vec<OS>,
     pub largest_partition: i32,
-    pub largest_path:      PathBuf,
-    pub sectors_free:      u64,
-    pub sectors_total:     u64,
-    pub best_free_region:  Region,
+    pub largest_path: PathBuf,
+    pub sectors_free: u64,
+    pub sectors_total: u64,
+    pub best_free_region: Region,
 }
 
 #[derive(Debug)]
 pub struct Region {
     pub start: u64,
-    pub end:   u64,
+    pub end: u64,
 }
 
 impl Region {
-    pub fn new(start: u64, end: u64) -> Region { Region { start, end } }
+    pub fn new(start: u64, end: u64) -> Region {
+        Region { start, end }
+    }
 
     pub fn compare(&mut self, start: u64, end: u64) {
         if self.size() < end - start {
@@ -76,5 +78,7 @@ impl Region {
         }
     }
 
-    pub fn size(&self) -> u64 { self.end - self.start }
+    pub fn size(&self) -> u64 {
+        self.end - self.start
+    }
 }

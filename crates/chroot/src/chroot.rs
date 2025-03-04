@@ -1,3 +1,4 @@
+use crate::command::Command;
 use std::{
     ffi::OsStr,
     io::Result,
@@ -5,19 +6,18 @@ use std::{
     process::Stdio,
 };
 use sys_mount::*;
-use crate::command::Command;
 
 /// Defines the location where a `chroot` will be performed, as well as storing
 /// handles to all of the binding mounts that the chroot requires.
 pub struct Chroot<'a> {
-    pub path:   PathBuf,
-    dev_mount:  Mount,
-    pts_mount:  Mount,
+    pub path: PathBuf,
+    dev_mount: Mount,
+    pts_mount: Mount,
     proc_mount: Mount,
-    run_mount:  Mount,
-    sys_mount:  Mount,
+    run_mount: Mount,
+    sys_mount: Mount,
     clear_envs: bool,
-    envs:       Vec<(&'a str, &'a str)>,
+    envs: Vec<(&'a str, &'a str)>,
 }
 
 impl<'a> Chroot<'a> {
@@ -46,10 +46,14 @@ impl<'a> Chroot<'a> {
     }
 
     /// Set an environment variable to define for this chroot.
-    pub fn env(&mut self, key: &'a str, value: &'a str) { self.envs.push((key, value)); }
+    pub fn env(&mut self, key: &'a str, value: &'a str) {
+        self.envs.push((key, value));
+    }
 
     /// Clear all environment variables for this chroot.
-    pub fn clear_envs(&mut self, clear: bool) { self.clear_envs = clear; }
+    pub fn clear_envs(&mut self, clear: bool) {
+        self.clear_envs = clear;
+    }
 
     /// Executes an external command with `chroot`.
     pub fn command<S: AsRef<OsStr>, T: AsRef<OsStr>, I: IntoIterator<Item = T>>(

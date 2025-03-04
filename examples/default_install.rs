@@ -26,15 +26,15 @@ fn main() {
     let options = InstallOptions::new(&disks, required, 0);
 
     let mut config = Config {
-        flags:            distinst::MODIFY_BOOT_ORDER | distinst::INSTALL_HARDWARE_SUPPORT,
-        hostname:         "pop-testing".into(),
-        keyboard_layout:  "us".into(),
-        keyboard_model:   None,
+        flags: distinst::MODIFY_BOOT_ORDER | distinst::INSTALL_HARDWARE_SUPPORT,
+        hostname: "pop-testing".into(),
+        keyboard_layout: "us".into(),
+        keyboard_model: None,
         keyboard_variant: None,
-        old_root:         None,
-        lang:             "en_US.UTF-8".into(),
-        remove:           "/cdrom/casper/filesystem.manifest-remove".into(),
-        squashfs:         "/cdrom/casper/filesystem.squashfs".into(),
+        old_root: None,
+        lang: "en_US.UTF-8".into(),
+        remove: "/cdrom/casper/filesystem.manifest-remove".into(),
+        squashfs: "/cdrom/casper/filesystem.squashfs".into(),
     };
 
     eprintln!("Options: {:#?}", options);

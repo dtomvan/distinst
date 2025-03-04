@@ -8,9 +8,9 @@ use super::{
     },
     get_size,
 };
-use disk_types::{BlockDeviceExt, PartitionTableExt, SectorExt};
 pub use crate::external::deactivate_devices;
 use crate::external::{blkid_partition, lvcreate, lvremove, lvs, mkfs, vgactivate, vgcreate};
+use disk_types::{BlockDeviceExt, PartitionTableExt, SectorExt};
 use partition_identity::PartitionIdentifiers;
 use proc_mounts::MOUNTS;
 use std::{
@@ -23,44 +23,52 @@ use std::{
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct VgData {
     /// Size of a PE, measured in sectors.
-    pe_size:  u64,
+    pe_size: u64,
     // Total amount of PEs in this VG.
     total_pe: u64,
     /// PEs which have been allocated / used.
     alloc_pe: u64,
     /// PEs which are free.
-    free_pe:  u64,
+    free_pe: u64,
 }
 
 /// An LVM device acts similar to a Disk, but consists of one more block devices
 /// that comprise a volume group, and may optionally be encrypted.
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct LogicalDevice {
-    pub model_name:   String,
+    pub model_name: String,
     pub volume_group: String,
-    pub device_path:  PathBuf,
-    pub luks_parent:  Option<PathBuf>,
-    pub mount_point:  Option<PathBuf>,
-    pub file_system:  Option<PartitionInfo>,
-    pub sectors:      u64,
-    pub sector_size:  u64,
-    pub partitions:   Vec<PartitionInfo>,
-    pub encryption:   Option<LvmEncryption>,
-    pub is_source:    bool,
-    pub remove:       bool,
-    pub vg_data:      VgData,
+    pub device_path: PathBuf,
+    pub luks_parent: Option<PathBuf>,
+    pub mount_point: Option<PathBuf>,
+    pub file_system: Option<PartitionInfo>,
+    pub sectors: u64,
+    pub sector_size: u64,
+    pub partitions: Vec<PartitionInfo>,
+    pub encryption: Option<LvmEncryption>,
+    pub is_source: bool,
+    pub remove: bool,
+    pub vg_data: VgData,
 }
 
 impl BlockDeviceExt for LogicalDevice {
-    fn get_device_path(&self) -> &Path { &self.device_path }
+    fn get_device_path(&self) -> &Path {
+        &self.device_path
+    }
 
-    fn get_mount_point(&self) -> Option<&Path> { self.mount_point.as_deref() }
+    fn get_mount_point(&self) -> Option<&Path> {
+        self.mount_point.as_deref()
+    }
 }
 
 impl PartitionTableExt for LogicalDevice {
-    fn get_partition_table(&self) -> Option<PartitionTable> { Some(PartitionTable::Gpt) }
+    fn get_partition_table(&self) -> Option<PartitionTable> {
+        Some(PartitionTable::Gpt)
+    }
 
-    fn get_partition_type_count(&self) -> (usize, usize, bool) { (0, 0, false) }
+    fn get_partition_type_count(&self) -> (usize, usize, bool) {
+        (0, 0, false)
+    }
 }
 
 impl SectorExt for LogicalDevice {
@@ -72,9 +80,13 @@ impl SectorExt for LogicalDevice {
 impl DiskExt for LogicalDevice {
     const LOGICAL: bool = true;
 
-    fn get_file_system(&self) -> Option<&PartitionInfo> { self.file_system.as_ref() }
+    fn get_file_system(&self) -> Option<&PartitionInfo> {
+        self.file_system.as_ref()
+    }
 
-    fn get_file_system_mut(&mut self) -> Option<&mut PartitionInfo> { self.file_system.as_mut() }
+    fn get_file_system_mut(&mut self) -> Option<&mut PartitionInfo> {
+        self.file_system.as_mut()
+    }
 
     fn set_file_system(&mut self, mut fs: PartitionInfo) {
         // Set the volume group + encryption to be the same as the parent.
@@ -84,13 +96,21 @@ impl DiskExt for LogicalDevice {
         self.partitions.clear();
     }
 
-    fn get_model(&self) -> &str { &self.model_name }
+    fn get_model(&self) -> &str {
+        &self.model_name
+    }
 
-    fn get_partitions_mut(&mut self) -> &mut [PartitionInfo] { &mut self.partitions }
+    fn get_partitions_mut(&mut self) -> &mut [PartitionInfo] {
+        &mut self.partitions
+    }
 
-    fn get_partitions(&self) -> &[PartitionInfo] { &self.partitions }
+    fn get_partitions(&self) -> &[PartitionInfo] {
+        &self.partitions
+    }
 
-    fn push_partition(&mut self, partition: PartitionInfo) { self.partitions.push(partition); }
+    fn push_partition(&mut self, partition: PartitionInfo) {
+        self.partitions.push(partition);
+    }
 }
 
 impl LogicalDevice {
@@ -105,7 +125,7 @@ impl LogicalDevice {
         let device_path = PathBuf::from(format!("/dev/mapper/{}", volume_group.replace("-", "--")));
         let mounts = MOUNTS.read().expect("unable to get mounts within LogicalDevice::new");
 
-        eprintln!("Logical device of {} is {:?}", volume_group,device_path);
+        eprintln!("Logical device of {} is {:?}", volume_group, device_path);
 
         LogicalDevice {
             model_name: ["LVM ", &volume_group].concat(),
@@ -122,7 +142,9 @@ impl LogicalDevice {
         }
     }
 
-    pub fn add_sectors(&mut self, sectors: u64) { self.sectors += sectors; }
+    pub fn add_sectors(&mut self, sectors: u64) {
+        self.sectors += sectors;
+    }
 
     #[rustfmt::skip]
     pub fn validate(&self) -> Result<(), DiskError> {
@@ -149,13 +171,21 @@ impl LogicalDevice {
         })
     }
 
-    pub fn get_pe_free(&self) -> u64 { self.vg_data.free_pe }
+    pub fn get_pe_free(&self) -> u64 {
+        self.vg_data.free_pe
+    }
 
-    pub fn get_pe_size_in_sectors(&self) -> u64 { self.vg_data.pe_size }
+    pub fn get_pe_size_in_sectors(&self) -> u64 {
+        self.vg_data.pe_size
+    }
 
-    pub fn shrink_vg(&mut self, _pes: u64) -> Result<(), DiskError> { Ok(()) }
+    pub fn shrink_vg(&mut self, _pes: u64) -> Result<(), DiskError> {
+        Ok(())
+    }
 
-    pub fn shrink_pv(&mut self, _sectors: u64) -> Result<(), DiskError> { Ok(()) }
+    pub fn shrink_pv(&mut self, _sectors: u64) -> Result<(), DiskError> {
+        Ok(())
+    }
 
     pub fn get_last_sector(&self) -> u64 {
         self.get_partitions()
@@ -210,7 +240,7 @@ impl LogicalDevice {
                     Ok(resolved) => resolved,
                     Err(why) => {
                         eprintln!("LVM device path is not a symbolic link");
-                        continue
+                        continue;
                     }
                 };
 
@@ -249,7 +279,9 @@ impl LogicalDevice {
         }
     }
 
-    pub fn set_luks_parent(&mut self, device: PathBuf) { self.luks_parent = Some(device); }
+    pub fn set_luks_parent(&mut self, device: PathBuf) {
+        self.luks_parent = Some(device);
+    }
 
     pub fn clear_partitions(&mut self) {
         for partition in &mut self.partitions {
@@ -268,10 +300,9 @@ impl LogicalDevice {
                 partition.remove();
                 Ok(())
             }
-            None => Err(DiskError::LogicalPartitionNotFound {
-                group:  vg.into(),
-                volume: volume.into(),
-            }),
+            None => {
+                Err(DiskError::LogicalPartitionNotFound { group: vg.into(), volume: volume.into() })
+            }
         }
     }
 

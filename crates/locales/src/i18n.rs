@@ -79,7 +79,9 @@ pub fn get_default(lang: &str) -> Option<String> {
 /// ```rust,no_exec,no_run
 /// LOCALES.keys().map(|x| x.as_str()).collect()
 /// ```
-pub fn get_language_codes() -> Vec<&'static str> { LOCALES.keys().map(|x| x.as_str()).collect() }
+pub fn get_language_codes() -> Vec<&'static str> {
+    LOCALES.keys().map(|x| x.as_str()).collect()
+}
 
 /// Fetch a list of countries associated with a language code.
 pub fn get_countries(lang: &str) -> Vec<&'static str> {
@@ -134,8 +136,8 @@ pub fn parse_locales() -> io::Result<Locales> {
 #[derive(Debug, PartialEq)]
 struct LocaleEntry {
     language: String,
-    country:  Option<String>,
-    codeset:  Option<Codeset>,
+    country: Option<String>,
+    codeset: Option<Codeset>,
 }
 
 impl LocaleEntry {
@@ -156,11 +158,13 @@ impl LocaleEntry {
 #[derive(Debug, PartialEq)]
 pub struct Codeset {
     pub variant: String,
-    pub dot:     bool,
+    pub dot: bool,
 }
 
 impl Codeset {
-    fn new(variant: String, dot: bool) -> Codeset { Codeset { variant, dot } }
+    fn new(variant: String, dot: bool) -> Codeset {
+        Codeset { variant, dot }
+    }
 }
 
 fn parse_entry(line: &str) -> Option<LocaleEntry> {

@@ -81,7 +81,9 @@ pub trait DiskExt: BlockDeviceExt + SectorExt + PartitionTableExt {
         self.get_mount_point().map_or_else(check_partitions, |m| m == Path::new(mount))
     }
 
-    fn is_logical(&self) -> bool { Self::LOGICAL }
+    fn is_logical(&self) -> bool {
+        Self::LOGICAL
+    }
 
     /// If a given start and end range overlaps a pre-existing partition, that
     /// partition's number will be returned to indicate a potential conflict.
@@ -160,9 +162,9 @@ pub trait DiskExt: BlockDeviceExt + SectorExt + PartitionTableExt {
         let fs = builder.filesystem;
         let partition = builder.build();
         if let Some(fs) = fs {
-            fs.validate_size(partition.get_sectors() * self.get_logical_block_size()).map_err(|why| {
-                DiskError::new_partition_error(partition.device_path.clone(), why)
-            })?;
+            fs.validate_size(partition.get_sectors() * self.get_logical_block_size()).map_err(
+                |why| DiskError::new_partition_error(partition.device_path.clone(), why),
+            )?;
         }
 
         self.push_partition(partition);

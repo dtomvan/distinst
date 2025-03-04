@@ -6,7 +6,7 @@ use std::{
 
 /// Convenient wrapper around `process::Command` to make it easier to work with.
 pub struct Command<'a> {
-    cmd:   process::Command,
+    cmd: process::Command,
     stdin: Option<&'a str>,
 }
 
@@ -28,9 +28,13 @@ impl<'a> Command<'a> {
         self
     }
 
-    pub fn env(&mut self, key: &str, value: &str) { self.cmd.env(key, value); }
+    pub fn env(&mut self, key: &str, value: &str) {
+        self.cmd.env(key, value);
+    }
 
-    pub fn env_clear(&mut self) { self.cmd.env_clear(); }
+    pub fn env_clear(&mut self) {
+        self.cmd.env_clear();
+    }
 
     pub fn stdin(&mut self, stdio: Stdio) -> &mut Self {
         self.cmd.stdin(stdio);

@@ -1,6 +1,8 @@
 use crate::chroot::{Chroot, Command};
-use crate::errors::{IoContext, IntoIoResult};
+use crate::errors::{IntoIoResult, IoContext};
 use crate::misc;
+use crate::timezones::Region;
+use crate::Config;
 use partition_identity::PartitionID;
 use proc_mounts::MountList;
 use std::{
@@ -10,8 +12,6 @@ use std::{
     process::Stdio,
 };
 use sys_mount::*;
-use crate::timezones::Region;
-use crate::Config;
 
 const APT_OPTIONS: &[&str] = &[
     "-o",
@@ -33,7 +33,9 @@ pub struct ChrootConfigurator<'a> {
 }
 
 impl<'a> ChrootConfigurator<'a> {
-    pub fn new(chroot: Chroot<'a>) -> Self { Self { chroot } }
+    pub fn new(chroot: Chroot<'a>) -> Self {
+        Self { chroot }
+    }
 
     /// Install the given packages if they are not already installed.
     pub fn apt_install(&self, packages: &[&str]) -> io::Result<()> {
@@ -131,7 +133,8 @@ impl<'a> ChrootConfigurator<'a> {
             let output = self.chroot.command("ubuntu-drivers", args).run_with_stdout()?;
             // ubuntu-drivers returns packages separated by newlines and/or space characters.
             // https://git.launchpad.net/ubuntu/+source/ubuntu-drivers-common/tree/ubuntu-drivers#n479
-            let packages: Vec<&str> = output.lines().flat_map(|line| line.trim().split(" ")).collect();
+            let packages: Vec<&str> =
+                output.lines().flat_map(|line| line.trim().split(" ")).collect();
 
             info!("installing drivers: {:?}", packages);
             let mut command = self.chroot.command(
@@ -179,11 +182,8 @@ impl<'a> ChrootConfigurator<'a> {
     ) -> io::Result<()> {
         // Add the user to the system.
         {
-            const DEFAULT_USERADD_FLAGS: &[&str] = &[
-                "-m",
-                "-G", "adm,sudo,lpadmin",
-                "-s", "/bin/bash"
-            ];
+            const DEFAULT_USERADD_FLAGS: &[&str] =
+                &["-m", "-G", "adm,sudo,lpadmin", "-s", "/bin/bash"];
 
             let mut command = self.chroot.command("useradd", DEFAULT_USERADD_FLAGS);
 
@@ -203,7 +203,8 @@ impl<'a> ChrootConfigurator<'a> {
         // Copy the profile icon to `/var/lib/AccountsService/icons/{user}` and assign that in
         // the config file at `/var/lib/AccountsService/users/{user}`.
         if let Some(path) = profile_icon {
-            let mut dest = self.chroot.path.join(&["var/lib/AccountsService/icons/", user].concat());
+            let mut dest =
+                self.chroot.path.join(&["var/lib/AccountsService/icons/", user].concat());
 
             if fs::copy(&path, &dest).is_err() {
                 let _ = fs::remove_file(&dest);
@@ -212,11 +213,16 @@ impl<'a> ChrootConfigurator<'a> {
 
             dest = self.chroot.path.join(&["var/lib/AccountsService/users/", user].concat());
 
-            if fs::write(&dest, fomat!(
-                "[User]\n"
-                "Icon=/var/lib/AccountsService/icons/" (user) "\n"
-                "SystemAccount=false\n"
-            )).is_err() {
+            if fs::write(
+                &dest,
+                fomat!(
+                    "[User]\n"
+                    "Icon=/var/lib/AccountsService/icons/" (user) "\n"
+                    "SystemAccount=false\n"
+                ),
+            )
+            .is_err()
+            {
                 let _ = fs::remove_file(&dest);
             }
         }
@@ -274,22 +280,26 @@ impl<'a> ChrootConfigurator<'a> {
     pub fn initramfs_disable(&self) -> io::Result<()> {
         info!("symlinking update-initramfs to true for duration of initial setup");
 
-        self.chroot.command("sh", &["-c", "mv /usr/sbin/update-initramfs /usr/sbin/update-initramfs.bak"])
+        self.chroot
+            .command("sh", &["-c", "mv /usr/sbin/update-initramfs /usr/sbin/update-initramfs.bak"])
             .run()
             .with_context(|err| format!("failed to migrate `update-initramfs`: {}", err))?;
 
-        self.chroot.command("sh", &["-c", "ln -s /usr/bin/true /usr/sbin/update-initramfs"])
+        self.chroot
+            .command("sh", &["-c", "ln -s /usr/bin/true /usr/sbin/update-initramfs"])
             .run()
             .with_context(|err| format!("failed to link `true` to `update-initramfs`: {}", err))
     }
 
     pub fn initramfs_reenable(&self) -> io::Result<()> {
         info!("re-enabling update-initramfs");
-        self.chroot.command("sh", &["-c", "rm /usr/sbin/update-initramfs"])
+        self.chroot
+            .command("sh", &["-c", "rm /usr/sbin/update-initramfs"])
             .run()
             .with_context(|err| format!("failed to remove update-initramfs symlink: {}", err))?;
 
-        self.chroot.command("sh", &["-c", "mv /usr/sbin/update-initramfs.bak /usr/sbin/update-initramfs"])
+        self.chroot
+            .command("sh", &["-c", "mv /usr/sbin/update-initramfs.bak /usr/sbin/update-initramfs"])
             .run()
             .with_context(|err| format!("failed to restore backup of update-initramfs: {}", err))
     }
@@ -307,10 +317,9 @@ impl<'a> ChrootConfigurator<'a> {
 
         let keyboard_file = self.chroot.path.join("etc/default/keyboard");
         let mut file = misc::create(&keyboard_file)?;
-        writeln!(&mut file, "XKBLAYOUT={}\nBACKSPACE=guess", config.keyboard_layout)
-            .with_context(|err| {
-                format!("failed to write keyboard layout to /etc/default/keyboard: {}", err)
-            })?;
+        writeln!(&mut file, "XKBLAYOUT={}\nBACKSPACE=guess", config.keyboard_layout).with_context(
+            |err| format!("failed to write keyboard layout to /etc/default/keyboard: {}", err),
+        )?;
 
         if let Some(model) = config.keyboard_model.as_deref() {
             writeln!(&mut file, "XKBMODEL={}", model).with_context(|err| {
@@ -463,7 +472,14 @@ impl<'a> ChrootConfigurator<'a> {
             self.chroot
                 .command(
                     "rsync",
-                    &["-KLavc", "--delete-before", "/cdrom/.disk", "/cdrom/dists", "/cdrom/pool", "/recovery"],
+                    &[
+                        "-KLavc",
+                        "--delete-before",
+                        "/cdrom/.disk",
+                        "/cdrom/dists",
+                        "/cdrom/pool",
+                        "/recovery",
+                    ],
                 )
                 .run()?;
 

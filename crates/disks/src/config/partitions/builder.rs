@@ -7,14 +7,14 @@ use std::path::PathBuf;
 /// Partition builders are supplied as inputs to `Disk::add_partition`.
 pub struct PartitionBuilder {
     pub start_sector: u64,
-    pub end_sector:   u64,
-    pub filesystem:   Option<FileSystem>,
-    pub part_type:    PartitionType,
-    pub name:         Option<String>,
-    pub flags:        Vec<PartitionFlag>,
-    pub mount:        Option<PathBuf>,
+    pub end_sector: u64,
+    pub filesystem: Option<FileSystem>,
+    pub part_type: PartitionType,
+    pub name: Option<String>,
+    pub flags: Vec<PartitionFlag>,
+    pub mount: Option<PathBuf>,
     pub volume_group: Option<(String, Option<LvmEncryption>)>,
-    pub key_id:       Option<String>,
+    pub key_id: Option<String>,
 }
 
 impl PartitionBuilder {
@@ -22,14 +22,14 @@ impl PartitionBuilder {
     pub fn new<O: Into<Option<FileSystem>>>(start: u64, end: u64, fs: O) -> PartitionBuilder {
         PartitionBuilder {
             start_sector: start,
-            end_sector:   end - 1,
-            filesystem:   fs.into(),
-            part_type:    PartitionType::Primary,
-            name:         None,
-            flags:        Vec::new(),
-            mount:        None,
+            end_sector: end - 1,
+            filesystem: fs.into(),
+            part_type: PartitionType::Primary,
+            name: None,
+            flags: Vec::new(),
+            mount: None,
             volume_group: None,
-            key_id:       None,
+            key_id: None,
         }
     }
 
@@ -84,12 +84,12 @@ impl PartitionBuilder {
     /// Builds a brand new Partition from the current state of the builder.
     pub fn build(self) -> PartitionInfo {
         PartitionInfo {
-            bitflags:     FORMAT,
-            number:       -1,
+            bitflags: FORMAT,
+            number: -1,
             start_sector: self.start_sector,
-            end_sector:   self.end_sector,
-            part_type:    self.part_type,
-            filesystem:   if self.volume_group.is_some() {
+            end_sector: self.end_sector,
+            part_type: self.part_type,
+            filesystem: if self.volume_group.is_some() {
                 if self.volume_group.as_ref().unwrap().1.is_some() {
                     Some(FileSystem::Luks)
                 } else {
@@ -98,16 +98,16 @@ impl PartitionBuilder {
             } else {
                 self.filesystem
             },
-            flags:        self.flags,
-            name:         self.name,
-            device_path:  PathBuf::new(),
-            mount_point:  None,
-            ordering:     -1,
-            target:       self.mount,
-            original_vg:  None,
+            flags: self.flags,
+            name: self.name,
+            device_path: PathBuf::new(),
+            mount_point: None,
+            ordering: -1,
+            target: self.mount,
+            original_vg: None,
             volume_group: self.volume_group.clone(),
-            key_id:       self.key_id,
-            identifiers:  PartitionIdentifiers::default(),
+            key_id: self.key_id,
+            identifiers: PartitionIdentifiers::default(),
         }
     }
 }

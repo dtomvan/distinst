@@ -4,11 +4,11 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct RefreshOption {
-    pub os_release:     OsRelease,
-    pub root_part:      String,
-    pub home_part:      Option<PartitionID>,
-    pub efi_part:       Option<PartitionID>,
-    pub recovery_part:  Option<PartitionID>,
+    pub os_release: OsRelease,
+    pub root_part: String,
+    pub home_part: Option<PartitionID>,
+    pub efi_part: Option<PartitionID>,
+    pub recovery_part: Option<PartitionID>,
     pub can_retain_old: bool,
 }
 

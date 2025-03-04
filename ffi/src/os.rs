@@ -17,33 +17,33 @@ macro_rules! get_os_release {
 
 #[repr(C)]
 pub struct DistinstOsRelease {
-    bug_report_url:     *mut libc::c_char,
-    home_url:           *mut libc::c_char,
-    id_like:            *mut libc::c_char,
-    id:                 *mut libc::c_char,
-    name:               *mut libc::c_char,
-    pretty_name:        *mut libc::c_char,
+    bug_report_url: *mut libc::c_char,
+    home_url: *mut libc::c_char,
+    id_like: *mut libc::c_char,
+    id: *mut libc::c_char,
+    name: *mut libc::c_char,
+    pretty_name: *mut libc::c_char,
     privacy_policy_url: *mut libc::c_char,
-    support_url:        *mut libc::c_char,
-    version_codename:   *mut libc::c_char,
-    version_id:         *mut libc::c_char,
+    support_url: *mut libc::c_char,
+    version_codename: *mut libc::c_char,
+    version_id: *mut libc::c_char,
 }
 
 impl DistinstOsRelease {
     pub unsafe fn from_os_release(release: &OsRelease) -> DistinstOsRelease {
         DistinstOsRelease {
-            bug_report_url:     CString::new(release.bug_report_url.clone()).unwrap().into_raw(),
-            home_url:           CString::new(release.home_url.clone()).unwrap().into_raw(),
-            id_like:            CString::new(release.id_like.clone()).unwrap().into_raw(),
-            id:                 CString::new(release.id.clone()).unwrap().into_raw(),
-            name:               CString::new(release.name.clone()).unwrap().into_raw(),
-            pretty_name:        CString::new(release.pretty_name.clone()).unwrap().into_raw(),
+            bug_report_url: CString::new(release.bug_report_url.clone()).unwrap().into_raw(),
+            home_url: CString::new(release.home_url.clone()).unwrap().into_raw(),
+            id_like: CString::new(release.id_like.clone()).unwrap().into_raw(),
+            id: CString::new(release.id.clone()).unwrap().into_raw(),
+            name: CString::new(release.name.clone()).unwrap().into_raw(),
+            pretty_name: CString::new(release.pretty_name.clone()).unwrap().into_raw(),
             privacy_policy_url: CString::new(release.privacy_policy_url.clone())
                 .unwrap()
                 .into_raw(),
-            support_url:        CString::new(release.support_url.clone()).unwrap().into_raw(),
-            version_codename:   CString::new(release.version_codename.clone()).unwrap().into_raw(),
-            version_id:         CString::new(release.version_id.clone()).unwrap().into_raw(),
+            support_url: CString::new(release.support_url.clone()).unwrap().into_raw(),
+            version_codename: CString::new(release.version_codename.clone()).unwrap().into_raw(),
+            version_id: CString::new(release.version_id.clone()).unwrap().into_raw(),
         }
     }
 }

@@ -42,7 +42,9 @@ mod timezones;
 mod upgrade;
 
 /// In comes a stack-allocated struct, and out goes a heap-allocated object.
-pub fn gen_object_ptr<T>(obj: T) -> *mut T { Box::into_raw(Box::new(obj)) as *mut T }
+pub fn gen_object_ptr<T>(obj: T) -> *mut T {
+    Box::into_raw(Box::new(obj)) as *mut T
+}
 
 pub fn null_check<T>(ptr: *const T) -> io::Result<()> {
     if ptr.is_null() {
@@ -67,7 +69,9 @@ pub fn to_cstr(string: String) -> *mut libc::c_char {
 }
 
 #[no_mangle]
-pub extern "C" fn distinst_device_layout_hash() -> u64 { distinst::device_layout_hash() }
+pub extern "C" fn distinst_device_layout_hash() -> u64 {
+    distinst::device_layout_hash()
+}
 
 #[no_mangle]
 pub unsafe extern "C" fn distinst_device_map_exists(name: *const libc::c_char) -> bool {
@@ -96,7 +100,9 @@ pub unsafe extern "C" fn distinst_validate_hostname(hostname: *const libc::c_cha
 }
 
 #[no_mangle]
-pub extern "C" fn distinst_minimum_disk_size(size: u64) -> u64 { distinst::minimum_disk_size(size) }
+pub extern "C" fn distinst_minimum_disk_size(size: u64) -> u64 {
+    distinst::minimum_disk_size(size)
+}
 
 #[no_mangle]
 pub extern "C" fn distinst_unset_mode() -> bool {

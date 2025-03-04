@@ -4,10 +4,10 @@ use std::{io, mem};
 
 use crate::config::DistinstConfig;
 use crate::disk::DistinstDisks;
-use distinst::{timezones::Region, Disks, Error, Installer, Status, Step};
 use crate::gen_object_ptr;
 use crate::DistinstRegion;
 use crate::DistinstUserAccountCreate;
+use distinst::{timezones::Region, Disks, Error, Installer, Status, Step};
 
 /// Bootloader steps
 #[repr(C)]
@@ -54,7 +54,7 @@ impl From<Step> for DISTINST_STEP {
 #[derive(Copy, Clone, Debug)]
 pub struct DistinstError {
     step: DISTINST_STEP,
-    err:  libc::c_int,
+    err: libc::c_int,
 }
 
 /// Installer error callback
@@ -65,7 +65,7 @@ pub type DistinstErrorCallback =
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct DistinstStatus {
-    step:    DISTINST_STEP,
+    step: DISTINST_STEP,
     percent: libc::c_int,
 }
 
@@ -78,8 +78,10 @@ pub type DistinstTimezoneCallback =
     extern "C" fn(user_data: *mut libc::c_void) -> *const DistinstRegion;
 
 /// Installer user account creation callback
-pub type DistinstUserAccountCallback =
-    extern "C" fn(user_account_create: *mut DistinstUserAccountCreate, user_data: *mut libc::c_void);
+pub type DistinstUserAccountCallback = extern "C" fn(
+    user_account_create: *mut DistinstUserAccountCreate,
+    user_data: *mut libc::c_void,
+);
 
 /// An installer object
 #[repr(C)]
@@ -99,7 +101,7 @@ pub unsafe extern "C" fn distinst_installer_emit_error(
 ) {
     (*(installer as *mut Installer)).emit_error(&Error {
         step: (*error).step.into(),
-        err:  io::Error::from_raw_os_error((*error).err),
+        err: io::Error::from_raw_os_error((*error).err),
     });
 }
 
@@ -114,7 +116,7 @@ pub unsafe extern "C" fn distinst_installer_on_error(
         callback(
             &DistinstError {
                 step: error.step.into(),
-                err:  error.err.raw_os_error().unwrap_or(libc::EIO),
+                err: error.err.raw_os_error().unwrap_or(libc::EIO),
             } as *const DistinstError,
             user_data,
         )

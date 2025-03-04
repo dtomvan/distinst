@@ -35,19 +35,25 @@ impl Timezones {
         Ok(output)
     }
 
-    pub fn zones(&self) -> &[Zone] { &self.zones }
+    pub fn zones(&self) -> &[Zone] {
+        &self.zones
+    }
 }
 
 #[derive(Clone, Debug, Default, Eq, Ord, PartialOrd, PartialEq)]
 pub struct Zone {
-    name:    String,
+    name: String,
     regions: Vec<Region>,
 }
 
 impl Zone {
-    pub fn name(&self) -> &str { &self.name }
+    pub fn name(&self) -> &str {
+        &self.name
+    }
 
-    pub fn regions(&self) -> &[Region] { &self.regions }
+    pub fn regions(&self) -> &[Region] {
+        &self.regions
+    }
 }
 
 #[derive(Clone, Debug, Default, Eq, Ord, PartialOrd, PartialEq)]
@@ -57,9 +63,13 @@ pub struct Region {
 }
 
 impl Region {
-    pub fn name(&self) -> &str { &self.name }
+    pub fn name(&self) -> &str {
+        &self.name
+    }
 
-    pub fn path(&self) -> &Path { &self.path }
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
 
     pub fn install(&self, dest: &Path) -> io::Result<()> {
         let timezone = dest.join("etc/timezone");

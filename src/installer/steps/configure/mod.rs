@@ -2,15 +2,20 @@ use crate::bootloader::Bootloader;
 mod chroot_conf;
 use self::chroot_conf::ChrootConfigurator;
 use super::{mount_cdrom, mount_efivars};
-use crate::installer::{conf::RecoveryEnv, steps::normalize_os_release_name};
 use crate::chroot::Chroot;
 use crate::distribution;
 use crate::errors::*;
 use crate::external::remount_rw;
 use crate::hardware_support;
 use crate::installer::traits::InstallerDiskOps;
-use libc;
+use crate::installer::{conf::RecoveryEnv, steps::normalize_os_release_name};
 use crate::misc;
+use crate::timezones::Region;
+use crate::Config;
+use crate::UserAccountCreate;
+use crate::INSTALL_HARDWARE_SUPPORT;
+use crate::RUN_UBUNTU_DRIVERS;
+use libc;
 use os_release::OsRelease;
 use partition_identity::PartitionID;
 use rayon;
@@ -21,11 +26,6 @@ use std::{
     path::Path,
 };
 use tempdir::TempDir;
-use crate::timezones::Region;
-use crate::Config;
-use crate::UserAccountCreate;
-use crate::INSTALL_HARDWARE_SUPPORT;
-use crate::RUN_UBUNTU_DRIVERS;
 
 /// Self-explanatory -- the fstab file will be generated with this header.
 const FSTAB_HEADER: &[u8] = b"# /etc/fstab: static file system information.
@@ -129,7 +129,8 @@ pub fn configure<D: InstallerDiskOps, P: AsRef<Path>, S: AsRef<str>, F: FnMut(i3
                     hardware_support::append_packages(install_pkgs, &iso_os_release);
                 }
 
-                configure_graphics = hardware_support::switchable_graphics::configure_graphics(&mount_dir);
+                configure_graphics =
+                    hardware_support::switchable_graphics::configure_graphics(&mount_dir);
             });
         });
 
@@ -254,11 +255,7 @@ pub fn configure<D: InstallerDiskOps, P: AsRef<Path>, S: AsRef<str>, F: FnMut(i3
         let locale = chroot.generate_locale(&config.lang);
         let kernel_copy = chroot.kernel_copy();
 
-        let timezone = if let Some(tz) = region {
-            chroot.timezone(tz)
-        } else {
-            Ok(())
-        };
+        let timezone = if let Some(tz) = region { chroot.timezone(tz) } else { Ok(()) };
 
         let useradd = if let Some(ref user) = user {
             chroot.create_user(

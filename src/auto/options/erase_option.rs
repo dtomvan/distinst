@@ -6,10 +6,10 @@ pub const MEETS_REQUIREMENTS: u8 = 4;
 
 #[derive(Debug)]
 pub struct EraseOption {
-    pub device:  PathBuf,
-    pub model:   String,
+    pub device: PathBuf,
+    pub model: String,
     pub sectors: u64,
-    pub flags:   u8,
+    pub flags: u8,
 }
 
 impl fmt::Display for EraseOption {
@@ -19,11 +19,17 @@ impl fmt::Display for EraseOption {
 }
 
 impl EraseOption {
-    pub fn is_rotational(&self) -> bool { self.flags & IS_ROTATIONAL != 0 }
+    pub fn is_rotational(&self) -> bool {
+        self.flags & IS_ROTATIONAL != 0
+    }
 
-    pub fn is_removable(&self) -> bool { self.flags & IS_REMOVABLE != 0 }
+    pub fn is_removable(&self) -> bool {
+        self.flags & IS_REMOVABLE != 0
+    }
 
-    pub fn meets_requirements(&self) -> bool { self.flags & MEETS_REQUIREMENTS != 0 }
+    pub fn meets_requirements(&self) -> bool {
+        self.flags & MEETS_REQUIREMENTS != 0
+    }
 
     pub fn get_linux_icon(&self) -> &'static str {
         const BOTH: u8 = IS_ROTATIONAL | IS_REMOVABLE;
