@@ -178,7 +178,7 @@ fn mount_efi(efi_id: &str, target_dir: &Path) -> anyhow::Result<UnmountDrop<Moun
             .context("failed to create target directory for EFI mount")?;
     }
 
-    Mount::builder().fstype("vfat").flags(MountFlags::empty()).mount(&efi_path, target_dir)
+    Mount::builder().fstype("vfat").mount(&efi_path, target_dir)
         .context("failed to mount EFI partition")
         .map(|mount| mount.into_unmount_drop(UnmountFlags::DETACH))
 }

@@ -70,7 +70,7 @@ pub trait PartitionExt: BlockDeviceExt + SectorExt {
 
             // Mount the FS to the temporary directory
             let base = tempdir.path();
-            if let Ok(m) = Mount::builder().flags(MountFlags::empty()).fstype(fs).mount(self.get_device_path(), base) {
+            if let Ok(m) = Mount::builder().fstype(fs).mount(self.get_device_path(), base) {
                 return func(Some((base, m.into_unmount_drop(UnmountFlags::DETACH))));
             }
         }
