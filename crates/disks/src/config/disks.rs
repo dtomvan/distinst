@@ -258,11 +258,11 @@ impl Disks {
             let mount = match kind {
                 MountKind::Direct { device, fs } => {
                     info!("mounting {:?} ({}) to {:?}", device, fs, target_mount);
-                    Mount::new(device, &target_mount, fs, MountFlags::empty(), None)?
+                    Mount::builder().flags(MountFlags::empty()).fstype(fs).mount(device, &target_mount)?
                 }
                 MountKind::Bind { source } => {
                     info!("bind mounting {:?} to {:?}", source, target_mount);
-                    Mount::new(source, &target_mount, "", MountFlags::BIND, None)?
+                    Mount::builder().flags(MountFlags::BIND).fstype("").mount(source, &target_mount)?
                 }
             };
 

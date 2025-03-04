@@ -25,12 +25,14 @@ impl<'a> Chroot<'a> {
     /// is successful.
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self> {
         let path = path.as_ref().canonicalize()?;
-        let dev_mount = Mount::new("/dev", &path.join("dev"), "none", MountFlags::BIND, None)?;
-        let pts_mount =
-            Mount::new("/dev/pts", &path.join("dev").join("pts"), "none", MountFlags::BIND, None)?;
-        let proc_mount = Mount::new("/proc", &path.join("proc"), "none", MountFlags::BIND, None)?;
-        let run_mount = Mount::new("/run", &path.join("run"), "none", MountFlags::BIND, None)?;
-        let sys_mount = Mount::new("/sys", &path.join("sys"), "none", MountFlags::BIND, None)?;
+        let builder = Mount::builder().flags(MountFlags::BIND).fstype("none");
+
+        let dev_mount = builder.clone().mount("/dev", &path.join("dev"))?;
+        let pts_mount = builder.clone().mount("/dev/pts", &path.join("dev").join("pts"))?;
+        let proc_mount = builder.clone().mount("/proc", &path.join("proc"))?;
+        let run_mount = builder.clone().mount("/run", &path.join("run"))?;
+        let sys_mount = builder.clone().mount("/sys", &path.join("sys"))?;
+
         Ok(Chroot {
             path,
             dev_mount,
