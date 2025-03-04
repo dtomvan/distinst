@@ -15,7 +15,7 @@ use std::{
     io,
     path::{Path, PathBuf},
 };
-use sys_mount::{Mount, MountFlags, Unmount, UnmountFlags};
+use sys_mount::{Mount, Unmount, UnmountFlags};
 use tempdir::TempDir;
 
 #[derive(Debug, Fail)]

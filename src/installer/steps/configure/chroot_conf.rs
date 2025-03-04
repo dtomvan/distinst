@@ -9,9 +9,7 @@ use std::{
     fs,
     io::{self, Write},
     path::Path,
-    process::Stdio,
 };
-use sys_mount::*;
 
 const APT_OPTIONS: &[&str] = &[
     "-o",
